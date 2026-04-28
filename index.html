@@ -1362,6 +1362,15 @@
           <button class="filter-chip purple" onclick="setFilter('type','remote',this)">Remote OK</button>
           <button class="filter-chip gold" onclick="setFilter('type','h1b',this)">H1B Sponsor</button>
         </div>
+        <span class="filter-label" style="margin-left:8px">Title</span>
+        <div class="filter-group" id="filter-category">
+          <button class="filter-chip active" onclick="setFilter('category','all',this)">All Titles</button>
+          <button class="filter-chip" onclick="setFilter('category','Quality Engineer',this)">Quality Engineer</button>
+          <button class="filter-chip" onclick="setFilter('category','Supplier Quality Engineer',this)">Supplier QE</button>
+          <button class="filter-chip" onclick="setFilter('category','Launch Quality Engineer',this)">Launch QE</button>
+          <button class="filter-chip" onclick="setFilter('category','Lead Quality Engineer',this)">Lead QE</button>
+          <button class="filter-chip" onclick="setFilter('category','Assistant Manager Quality',this)">Asst. Manager</button>
+        </div>
         <select class="sort-select" id="sort-select" onchange="renderJobs()">
           <option value="score">Sort: Match Score</option>
           <option value="date">Sort: Date Added</option>
@@ -1511,53 +1520,75 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════
-// DATA
+// DATA — loaded from data/jobs.json (written by pull_jobs.js)
+// Falls back to empty array if file not yet populated
 // ══════════════════════════════════════════════════════════════
 const NOW = new Date();
 
-const JOBS_SEED = [
-  {id:1,title:"Sr. Quality Engineer — EV Battery",company:"Tesla Inc.",location:"Austin TX / Sparks NV",market:"USA",diff:"Easy",score:96,salaryDisplay:"$105K–$130K",salaryNum:117500,remote:false,h1b:true,link:"https://www.tesla.com/careers",file:"01_Tesla_SrQualityEngineer_USA.docx",desc:"Own incoming, in-process, and outgoing quality for EV battery modules. Lead PFMEA, Control Plans, MRB/NCM, 8D/RCCA. Directly mirrors your Tesla Sparks role — highest match on the board.",keywords:["PFMEA","EV Battery","MRB/NCM","8D","RCCA","Control Plans","SPC","FPY"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
-  {id:2,title:"Supplier Quality Engineer",company:"Ford Motor Company",location:"Dearborn MI / Remote-Hybrid",market:"USA",diff:"Medium",score:88,salaryDisplay:"$95K–$118K",salaryNum:106500,remote:true,h1b:true,link:"https://jobs.ford.com",file:"02_Ford_SupplierQualityEngineer_USA.docx",desc:"Lead supplier quality for automotive components. PPAP, APQP, SCAR, supplier audits, GD&T, IATF 16949 compliance. H1B sponsorship confirmed.",keywords:["PPAP","APQP","SCAR","GD&T","Supplier Audits","IATF 16949","8D","Cp/Cpk"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
-  {id:3,title:"Quality Engineer — Automotive Mfg.",company:"Toyota Motor North America",location:"Plano TX / Georgetown KY",market:"USA",diff:"Medium",score:86,salaryDisplay:"$90K–$115K",salaryNum:102500,remote:false,h1b:true,link:"https://www.toyota.com/usa/operations/careers",file:"03_Toyota_QualityEngineer_USA.docx",desc:"Drive APQP, PFMEA, SPC, and supplier quality management aligned with Toyota Production System. IATF 16949 compliance. H1B sponsorship confirmed (11/11 approvals FY2025).",keywords:["APQP","PFMEA","SPC","TPS / Kaizen","IATF 16949","Supplier Quality"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
-  {id:4,title:"Senior Supplier Quality Engineer",company:"Aptiv (formerly Delphi)",location:"Austin TX / Hybrid",market:"USA",diff:"Medium",score:87,salaryDisplay:"$100K–$125K",salaryNum:112500,remote:true,h1b:true,link:"https://careers.aptiv.com",file:"04_Aptiv_SrSQE_USA.docx",desc:"Manage supplier quality for EV electrical/electronic components. PPAP, CQI audits, SCAR, APQP, corrective actions. Aptiv Austin office growing. H1B transfer supported.",keywords:["Supplier Quality","PPAP","CQI Audits","APQP","PFMEA","EV","SCAR","MRB"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
-  {id:5,title:"Supplier Quality Engineer",company:"Nifco America Corp.",location:"Multiple US / Hybrid-Remote",market:"USA",diff:"Easy",score:90,salaryDisplay:"$85K–$108K",salaryNum:96500,remote:true,h1b:true,link:"https://www.indeed.com/cmp/Nifco-America-Corp",file:"05_Nifco_SQE_USA.docx",desc:"Lead supplier issues to closure using 8D, LPA, PDCA. Conduct supplier audits, manage PPAP and SCAR. Plastic injection molding. Visa sponsorship confirmed.",keywords:["8D","LPA","PPAP","Supplier Audits","IATF 16949","Injection Molding","SCAR"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
-  {id:6,title:"Supplier Quality Manager",company:"Bosch India",location:"Pune / Bengaluru",market:"India",diff:"Easy",score:93,salaryDisplay:"₹28–42 LPA",salaryNum:42,remote:false,h1b:false,link:"https://www.bosch-career.in/en/jobs/",file:"06_Bosch_SQManager_India.docx",desc:"Lead supplier quality team for automotive components. Manage PPAP, supplier audits, SCAR closure, IATF 16949 compliance. Bosch actively recruits US-returned engineers.",keywords:["Supplier Quality Manager","PPAP","Supplier Audits","SCAR","IATF 16949","APQP","KPI","MRB"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
-  {id:7,title:"Senior Quality Engineer — EV",company:"Tata Motors / TPEM",location:"Pune",market:"India",diff:"Easy",score:91,salaryDisplay:"₹22–35 LPA",salaryNum:35,remote:false,h1b:false,link:"https://www.tatamotors.com/careers/",file:"07_TataMotors_SrQE_EV_India.docx",desc:"Quality engineering for Tata EV platforms (Nexon EV, Punch EV). APQP, PFMEA, Control Plans for battery and BIW components. Tesla EV battery background is a direct match.",keywords:["EV Battery","APQP","PFMEA","Control Plans","SPC","CTQ","Supplier Quality","IATF 16949"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
-  {id:8,title:"Lead Quality Engineer — Interiors",company:"Motherson Group",location:"Noida / Pune",market:"India",diff:"Medium",score:88,salaryDisplay:"₹20–32 LPA",salaryNum:32,remote:false,h1b:false,link:"https://motherson.com/career/",file:"08_Motherson_LeadQE_India.docx",desc:"Lead quality for plastic trim & assembly. Customer quality, PPAP, PFMEA, supplier quality for Tesla/Toyota-facing programs. Yanfeng interior trim experience is a direct fit.",keywords:["PPAP","PFMEA","Injection Molding","Class A Surface","AAR","8D","IATF 16949","Supplier Quality"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
-  {id:9,title:"Supplier Quality Manager",company:"Valeo India",location:"Chennai / Pune",market:"India",diff:"Medium",score:85,salaryDisplay:"₹25–40 LPA",salaryNum:40,remote:false,h1b:false,link:"https://careers.valeo.com/",file:"09_Valeo_SQManager_India.docx",desc:"Oversee supplier qualification, PPAP approvals, audits, corrective actions for Tier-2/3 suppliers. Manage SQE team and KPI reporting. CQI special process audit expertise required.",keywords:["Supplier Qualification","PPAP","CQI Audits","MRB","SCAR","VOE","IATF 16949","SPC"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
-  {id:10,title:"Advanced Quality Engineer — EV",company:"Ola Electric",location:"Bengaluru",market:"India",diff:"Hard",score:82,salaryDisplay:"₹18–30 LPA + equity",salaryNum:30,remote:false,h1b:false,link:"https://www.olaelectric.com/careers",file:"10_OlaElectric_AdvQE_India.docx",desc:"NPI quality planning for electric 2-wheelers. APQP, PFMEA, SPC, supplier qualification. Fast-paced EV startup — Tesla pedigree is a massive differentiator. Equity upside possible.",keywords:["NPI Quality","APQP","PFMEA","SPC","Supplier Industrialization","EV","Launch Readiness"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
-];
-
-// Simulated new jobs that appear on pulls
-const PULL_JOB_BANK = [
-  {id:101,title:"Quality Manager — EV Powertrain",company:"Rivian Automotive",location:"Normal IL / Remote-Hybrid",market:"USA",diff:"Medium",score:84,salaryDisplay:"$110K–$135K",salaryNum:122500,remote:true,h1b:true,link:"https://rivian.com/careers",file:"01_Tesla_SrQualityEngineer_USA.docx",desc:"Own quality for EV powertrain components. PFMEA, APQP, supplier quality, IATF 16949. EV battery QE experience strongly preferred.",keywords:["EV Powertrain","PFMEA","APQP","IATF 16949","Supplier Quality","8D"],pullDate:'',isNew:true},
-  {id:102,title:"Supplier Quality Development Engineer",company:"Lucid Motors",location:"Newark CA / Hybrid",market:"USA",diff:"Medium",score:83,salaryDisplay:"$100K–$128K",salaryNum:114000,remote:true,h1b:true,link:"https://lucidmotors.com/careers",file:"04_Aptiv_SrSQE_USA.docx",desc:"Drive supplier quality and industrialization for luxury EV programs. PPAP, APQP, SCAR, process audits. Tesla background preferred.",keywords:["Supplier Industrialization","PPAP","APQP","EV","SCAR","GD&T","SPC"],pullDate:'',isNew:true},
-  {id:103,title:"Lead Supplier Quality Engineer",company:"Ather Energy",location:"Bengaluru",market:"India",diff:"Medium",score:86,salaryDisplay:"₹22–38 LPA",salaryNum:38,remote:false,h1b:false,link:"https://www.atherenergy.com/careers",file:"07_TataMotors_SrQE_EV_India.docx",desc:"Quality oversight for EV battery and electrical component suppliers. APQP, PPAP, supplier audits, corrective actions. Growing EV startup — Tesla background highly valued.",keywords:["EV Battery","APQP","PPAP","Supplier Audits","PFMEA","SCAR"],pullDate:'',isNew:true},
-  {id:104,title:"Quality Systems Manager",company:"Aptiv India (GCC)",location:"Bengaluru",market:"India",diff:"Medium",score:80,salaryDisplay:"₹28–44 LPA",salaryNum:44,remote:false,h1b:false,link:"https://careers.aptiv.com",file:"09_Valeo_SQManager_India.docx",desc:"Build and manage quality systems for automotive EV programs. IATF 16949 compliance, supplier audits, APQP, data analytics with Power BI/Tableau.",keywords:["Quality Systems","IATF 16949","APQP","Supplier Audits","Power BI","Tableau","SPC"],pullDate:'',isNew:true},
-  {id:105,title:"Sr. Quality Engineer — Aerospace/Auto",company:"Joby Aviation",location:"Santa Cruz CA",market:"USA",diff:"Hard",score:74,salaryDisplay:"$105K–$130K",salaryNum:117500,remote:false,h1b:true,link:"https://www.jobyaviation.com/careers/",file:"01_Tesla_SrQualityEngineer_USA.docx",desc:"Quality engineering for eVTOL manufacturing. APQP, SPC, supplier quality, GD&T. Automotive quality tools map strongly to aerospace context.",keywords:["APQP","SPC","GD&T","Supplier Quality","PFMEA","8D","IATF"],pullDate:'',isNew:true},
-];
-
-const RESUMES = [
-  {file:"01_Tesla_SrQualityEngineer_USA.docx",label:"Sr. Quality Engineer — EV Battery",company:"Tesla Inc.",market:"USA",score:96},
-  {file:"02_Ford_SupplierQualityEngineer_USA.docx",label:"Supplier Quality Engineer",company:"Ford Motor Company",market:"USA",score:88},
-  {file:"03_Toyota_QualityEngineer_USA.docx",label:"Quality Engineer — Automotive",company:"Toyota Motor NA",market:"USA",score:86},
-  {file:"04_Aptiv_SrSQE_USA.docx",label:"Senior Supplier Quality Engineer",company:"Aptiv",market:"USA",score:87},
-  {file:"05_Nifco_SQE_USA.docx",label:"Supplier Quality Engineer",company:"Nifco America",market:"USA",score:90},
-  {file:"06_Bosch_SQManager_India.docx",label:"Supplier Quality Manager",company:"Bosch India",market:"India",score:93},
-  {file:"07_TataMotors_SrQE_EV_India.docx",label:"Senior Quality Engineer — EV",company:"Tata Motors / TPEM",market:"India",score:91},
-  {file:"08_Motherson_LeadQE_India.docx",label:"Lead Quality Engineer — Interiors",company:"Motherson Group",market:"India",score:88},
-  {file:"09_Valeo_SQManager_India.docx",label:"Supplier Quality Manager",company:"Valeo India",market:"India",score:85},
-  {file:"10_OlaElectric_AdvQE_India.docx",label:"Advanced Quality Engineer — EV",company:"Ola Electric",market:"India",score:82},
-];
-
-// ── STATE ──
-let allJobs = [...JOBS_SEED];
+// ── STATE (populated by loadJobData below) ──
+let allJobs      = [];
 let archivedJobs = [];
-let pullLog = [];
-let activeFilters = { market:'all', diff:'all', type:'all' };
+let pullLog      = [];
+let activeFilters = { market:'all', diff:'all', type:'all', category:'all' };
 let selectedJobId = null;
-let pullCount = 0;
-let bankIndex = 0;
+let pullCount    = 0;
+
+// ── TITLE CATEGORIES (for filter chips) ──
+const TITLE_CATEGORIES = [
+  'Quality Engineer',
+  'Supplier Quality Engineer',
+  'Launch Quality Engineer',
+  'Lead Quality Engineer',
+  'Assistant Manager Quality',
+];
+
+// ── RESUMES ──
+const RESUMES = [
+  {file:"01_Tesla_SrQualityEngineer_USA.docx",   label:"Sr. Quality Engineer — EV Battery",      company:"Tesla Inc.",        market:"USA",   score:96},
+  {file:"02_Ford_SupplierQualityEngineer_USA.docx",label:"Supplier Quality Engineer",             company:"Ford Motor Company",market:"USA",   score:88},
+  {file:"03_Toyota_QualityEngineer_USA.docx",    label:"Quality Engineer — Automotive",           company:"Toyota Motor NA",   market:"USA",   score:86},
+  {file:"04_Aptiv_SrSQE_USA.docx",               label:"Senior Supplier Quality Engineer",        company:"Aptiv",             market:"USA",   score:87},
+  {file:"05_Nifco_SQE_USA.docx",                 label:"Supplier Quality Engineer",               company:"Nifco America",     market:"USA",   score:90},
+  {file:"06_Bosch_SQManager_India.docx",         label:"Supplier Quality Manager",                company:"Bosch India",       market:"India", score:93},
+  {file:"07_TataMotors_SrQE_EV_India.docx",      label:"Senior Quality Engineer — EV",            company:"Tata Motors / TPEM",market:"India", score:91},
+  {file:"08_Motherson_LeadQE_India.docx",        label:"Lead Quality Engineer — Interiors",       company:"Motherson Group",   market:"India", score:88},
+  {file:"09_Valeo_SQManager_India.docx",         label:"Supplier Quality Manager",                company:"Valeo India",       market:"India", score:85},
+  {file:"10_OlaElectric_AdvQE_India.docx",       label:"Advanced Quality Engineer — EV",          company:"Ola Electric",      market:"India", score:82},
+];
+
+// ── LOAD REAL JOB DATA from data/jobs.json ────────────────────────────────
+// When hosted on GitHub Pages, this fetches the real scraped jobs.
+// When opened locally as a file, falls back to the demo seed below.
+async function loadJobData() {
+  try {
+    const res = await fetch('../data/jobs.json');
+    if (!res.ok) throw new Error('fetch failed');
+    const jobs = await res.json();
+    if (jobs && jobs.length > 0) {
+      allJobs = jobs.filter(j => !j.archived);
+      console.log(`Loaded ${allJobs.length} real jobs from data/jobs.json`);
+      return true;
+    }
+  } catch (e) {
+    console.log('data/jobs.json not available — using demo data:', e.message);
+  }
+
+  // ── FALLBACK DEMO SEED (shown when no real data exists yet) ──────────
+  allJobs = [
+    {id:'demo-1',title:'Sr. Quality Engineer — EV Battery',company:'Tesla Inc.',location:'Austin TX',market:'USA',category:'Quality Engineer',diff:'Easy',score:96,salaryDisplay:'$105K–$130K',remote:false,h1b:true,link:'https://www.tesla.com/careers',description:'Own incoming, in-process, and outgoing quality for EV battery modules. Lead PFMEA, Control Plans, MRB/NCM, 8D/RCCA.',matchedKeywords:['PFMEA','EV Battery','MRB/NCM','8D','Control Plans','SPC'],pullDate:fmtDate(new Date()),isNew:true,source:'Demo — run pull_jobs.js to get real jobs'},
+    {id:'demo-2',title:'Supplier Quality Engineer',company:'Ford Motor Company',location:'Michigan / Remote',market:'USA',category:'Supplier Quality Engineer',diff:'Medium',score:88,salaryDisplay:'$95K–$118K',remote:true,h1b:true,link:'https://jobs.ford.com',description:'Lead supplier quality for automotive components. PPAP, APQP, SCAR, supplier audits, GD&T, IATF 16949.',matchedKeywords:['PPAP','APQP','SCAR','GD&T','IATF 16949','8D'],pullDate:fmtDate(new Date()),isNew:true,source:'Demo'},
+    {id:'demo-3',title:'Launch Quality Engineer',company:'Toyota Motor NA',location:'Michigan',market:'USA',category:'Launch Quality Engineer',diff:'Medium',score:86,salaryDisplay:'$90K–$115K',remote:false,h1b:true,link:'https://www.toyota.com/usa/operations/careers',description:'Drive APQP launch quality, PFMEA, SPC for new model programs.',matchedKeywords:['APQP','PFMEA','SPC','launch','IATF 16949'],pullDate:fmtDate(new Date()),isNew:false,source:'Demo'},
+    {id:'demo-4',title:'Lead Quality Engineer',company:'Aptiv',location:'Austin TX / Hybrid',market:'USA',category:'Lead Quality Engineer',diff:'Medium',score:87,salaryDisplay:'$100K–$125K',remote:true,h1b:true,link:'https://careers.aptiv.com',description:'Lead supplier quality for EV electrical components. PPAP, CQI audits, SCAR, APQP.',matchedKeywords:['Supplier Quality','PPAP','CQI Audits','APQP','EV'],pullDate:fmtDate(new Date()),isNew:false,source:'Demo'},
+    {id:'demo-5',title:'Assistant Manager Quality',company:'Nifco America',location:'Remote',market:'USA',category:'Assistant Manager Quality',diff:'Easy',score:90,salaryDisplay:'$85K–$108K',remote:true,h1b:true,link:'https://www.indeed.com/cmp/Nifco-America-Corp',description:'Lead supplier quality using 8D, LPA, PPAP, SCAR. Injection molding. Visa sponsorship confirmed.',matchedKeywords:['8D','LPA','PPAP','IATF 16949'],pullDate:fmtDate(new Date()),isNew:true,source:'Demo'},
+    {id:'demo-6',title:'Supplier Quality Manager',company:'Bosch India',location:'Pune / Bengaluru',market:'India',category:'Supplier Quality Engineer',diff:'Easy',score:93,salaryDisplay:'₹28–42 LPA',remote:false,h1b:false,link:'https://www.bosch-career.in/en/jobs/',description:'Lead supplier quality team. Manage PPAP, audits, SCAR closure, IATF 16949.',matchedKeywords:['PPAP','Supplier Audits','SCAR','IATF 16949','APQP'],pullDate:fmtDate(new Date()),isNew:true,source:'Demo'},
+    {id:'demo-7',title:'Senior Quality Engineer — EV',company:'Tata Motors / TPEM',location:'Pune',market:'India',category:'Quality Engineer',diff:'Easy',score:91,salaryDisplay:'₹22–35 LPA',remote:false,h1b:false,link:'https://www.tatamotors.com/careers/',description:'Quality for Tata EV platforms. APQP, PFMEA, Control Plans for battery and BIW components.',matchedKeywords:['EV Battery','APQP','PFMEA','Control Plans','SPC'],pullDate:fmtDate(new Date()),isNew:false,source:'Demo'},
+    {id:'demo-8',title:'Lead Quality Engineer — Interiors',company:'Motherson Group',location:'Noida / Pune',market:'India',category:'Lead Quality Engineer',diff:'Medium',score:88,salaryDisplay:'₹20–32 LPA',remote:false,h1b:false,link:'https://motherson.com/career/',description:'Lead quality for plastic trim. PPAP, PFMEA, supplier quality for Tesla/Toyota programs.',matchedKeywords:['PPAP','PFMEA','Injection Molding','8D','IATF 16949'],pullDate:fmtDate(new Date()),isNew:false,source:'Demo'},
+    {id:'demo-9',title:'Supplier Quality Manager',company:'Valeo India',location:'Chennai / Pune',market:'India',category:'Supplier Quality Engineer',diff:'Medium',score:85,salaryDisplay:'₹25–40 LPA',remote:false,h1b:false,link:'https://careers.valeo.com/',description:'Supplier qualification, PPAP approvals, audits, corrective actions, SCAR VOE.',matchedKeywords:['PPAP','CQI Audits','MRB','SCAR','IATF 16949'],pullDate:fmtDate(new Date()),isNew:false,source:'Demo'},
+    {id:'demo-10',title:'Assistant Manager — Quality EV',company:'Ola Electric',location:'Bengaluru',market:'India',category:'Assistant Manager Quality',diff:'Hard',score:82,salaryDisplay:'₹18–30 LPA + equity',remote:false,h1b:false,link:'https://www.olaelectric.com/careers',description:'NPI quality planning for electric 2-wheelers. APQP, PFMEA, SPC, supplier qualification.',matchedKeywords:['NPI','APQP','PFMEA','SPC','EV','launch'],pullDate:fmtDate(new Date()),isNew:true,source:'Demo'},
+  ];
+  return false;
+}
+
 
 // ── INIT ──
 function fmtDate(d) {
@@ -1573,15 +1604,69 @@ function fmtTime(d) {
 
 document.getElementById('current-date').textContent = fmtTime(NOW);
 
-// initial pull log entry
-addPullLog(NOW, 10, 10, true);
-renderPullLog();
-
-function addPullLog(date, newJ, total, isFirst) {
-  pullLog.unshift({ date, newJobs: isFirst ? 10 : newJ, total, success: true });
+function addPullLog(date, newJ, total, src) {
+  pullLog.unshift({ date, newJobs: newJ, total, success: true, source: src || 'Indeed USA + India' });
   pullCount++;
   document.getElementById('stat-pulls').textContent = pullCount;
   document.getElementById('history-count').textContent = pullCount + ' pull' + (pullCount!==1?'s':'');
+}
+
+// ── BOOT: load real data then render ─────────────────────────────────────
+(async () => {
+  const hasReal = await loadJobData();
+
+  // load archived if available
+  try {
+    const res = await fetch('../data/archived_jobs.json');
+    if (res.ok) {
+      const arc = await res.json();
+      archivedJobs = Array.isArray(arc) ? arc : [];
+    }
+  } catch (_) {}
+
+  // load pull log if available
+  try {
+    const res = await fetch('../data/pull_log.json');
+    if (res.ok) {
+      const log = await res.json();
+      if (Array.isArray(log) && log.length) {
+        pullLog = log.map(e => ({ ...e, date: new Date(e.timestamp) }));
+        pullCount = pullLog.length;
+        document.getElementById('stat-pulls').textContent = pullCount;
+        document.getElementById('history-count').textContent = pullCount + ' pull' + (pullCount!==1?'s':'');
+        const last = pullLog[0];
+        document.getElementById('last-pull-time').textContent =
+          'Last pull: ' + fmtTime(new Date(last.timestamp || last.date));
+      }
+    }
+  } catch (_) {}
+
+  // If no real pull log yet, add a demo entry
+  if (!pullLog.length) {
+    addPullLog(NOW, allJobs.length, allJobs.length, hasReal ? 'Indeed USA + India' : 'Demo data');
+  }
+
+  updateStatBadges();
+  renderPullLog();
+  renderHistoryTimeline();
+  renderArchiveGrid();
+  renderJobs();
+})();
+
+function updateStatBadges() {
+  const total  = allJobs.length;
+  const usa    = allJobs.filter(j => j.market === 'USA').length;
+  const india  = allJobs.filter(j => j.market === 'India').length;
+  const newCnt = allJobs.filter(j => j.isNew).length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-new-badge').textContent = '+' + newCnt + ' new';
+  document.getElementById('job-count-badge').textContent = total;
+  document.getElementById('archive-count').textContent =
+    archivedJobs.length + ' job' + (archivedJobs.length !== 1 ? 's' : '');
+  // update stat cards
+  const cards = document.querySelectorAll('.stat-num');
+  if (cards[1]) cards[1].textContent = usa;
+  if (cards[2]) cards[2].textContent = india;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1627,16 +1712,18 @@ function getFilteredJobs() {
     if (activeFilters.diff !== 'all' && j.diff !== activeFilters.diff) return false;
     if (activeFilters.type === 'remote' && !j.remote) return false;
     if (activeFilters.type === 'h1b' && !j.h1b) return false;
+    if (activeFilters.category !== 'all' && j.category !== activeFilters.category) return false;
     if (q) {
-      const hay = (j.title+j.company+j.location+j.desc+j.keywords.join(' ')).toLowerCase();
+      const kws = Array.isArray(j.matchedKeywords) ? j.matchedKeywords : (j.keywords || []);
+      const hay = (j.title+j.company+j.location+(j.desc||j.description||'')+kws.join(' ')).toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
   });
   jobs.sort((a,b) => {
     if (sort === 'score') return b.score - a.score;
-    if (sort === 'date') return new Date(b.pullDate) - new Date(a.pullDate);
-    if (sort === 'salary_num') return b.salaryNum - a.salaryNum;
+    if (sort === 'date') return new Date(b.pullTimestamp||b.pullDate) - new Date(a.pullTimestamp||a.pullDate);
+    if (sort === 'salary_num') return (b.salaryNum||0) - (a.salaryNum||0);
     if (sort === 'company') return a.company.localeCompare(b.company);
     return 0;
   });
@@ -1717,12 +1804,14 @@ function jobCard(j) {
     <div class="jc-tags">
       <span class="tag tag-${j.market==='USA'?'usa':'india'}">${j.market==='USA'?'🇺🇸 USA':'🇮🇳 India'}</span>
       ${diffTag(j.diff)}
+      ${j.category?`<span class="tag" style="background:rgba(139,92,246,0.12);color:#c4b5fd;font-size:9px">${j.category.replace(' Engineer','').replace(' Quality','')}</span>`:''}
       ${j.remote?'<span class="tag tag-remote">Remote</span>':''}
       ${j.h1b?'<span class="tag tag-h1b">H1B ✓</span>':''}
       ${j.isNew?'<span class="tag tag-new">New</span>':''}
+      ${j.source&&j.source.includes('real')?'<span class="tag" style="background:rgba(16,185,129,0.15);color:#34d399;font-size:9px">Live</span>':''}
     </div>
     <div class="jc-salary">${j.salaryDisplay}</div>
-    <div class="jc-desc">${j.desc}</div>
+    <div class="jc-desc">${j.desc || j.description || ''}</div>
     <div class="jc-actions">
       <a class="btn btn-primary" href="${j.link}" target="_blank" onclick="event.stopPropagation()">Apply →</a>
       <button class="btn btn-gold" onclick="event.stopPropagation();showDetail(${j.id})">Resume + Details</button>
@@ -1753,7 +1842,7 @@ function showDetail(id) {
   if (!j) return;
 
   const resumePrev = getResumePrev(j);
-  const skillBars = j.keywords.map(k => `
+  const skillBars = (Array.isArray(j.matchedKeywords)?j.matchedKeywords:(j.keywords||[])).map(k => `
     <div class="score-bar-wrap">
       <div class="score-bar-row"><span>${k}</span><span style="color:var(--mint)">✓</span></div>
       <div class="score-bar-bg"><div class="score-bar-fill" style="width:${85+Math.floor(Math.random()*15)}%"></div></div>
@@ -1780,9 +1869,9 @@ function showDetail(id) {
       </div>
       <div>
         <div class="drawer-section-title">Role Description</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">${j.desc}</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">${j.desc||j.description||''}</div>
         <div class="drawer-section-title">Matched Keywords</div>
-        <div class="kw-cloud">${j.keywords.map(k=>`<span class="kw">${k}</span>`).join('')}</div>
+        <div class="kw-cloud">${(Array.isArray(j.matchedKeywords)?j.matchedKeywords:(j.keywords||[])).map(k=>`<span class="kw">${k}</span>`).join('')}</div>
       </div>
     </div>
     <div class="drawer-section-title" style="margin-bottom:8px">Tailored Resume Preview — <span style="color:var(--sky2);font-family:'JetBrains Mono',monospace;font-size:11px">${j.file}</span></div>
@@ -1800,14 +1889,14 @@ function getResumePrev(j) {
 <div class="rb" style="color:var(--sky2)">${j.title.toUpperCase()}</div>
 <div class="rb">+1 812-927-6309 | ravitejachimata@gmail.com | ${j.market==='USA'?'Austin TX | H1B Transfer Ready':'Open to Relocation across India'}</div>
 <div class="rh">PROFESSIONAL SUMMARY</div>
-<div class="rb">Quality Engineer with 8+ years of automotive and EV battery quality experience. Tailored for ${j.company} — emphasising ${j.keywords.slice(0,3).join(', ')} throughout.</div>
+<div class="rb">Quality Engineer with 8+ years of automotive and EV battery quality experience. Tailored for ${j.company} — emphasising ${(Array.isArray(j.matchedKeywords)?j.matchedKeywords:(j.keywords||[])).slice(0,3).join(', ')} throughout.</div>
 <div class="rh">KEY ACHIEVEMENTS</div>
 <div class="rb">• Reduced exterior defect rates 10%→4%, saving $15K annually</div>
 <div class="rb">• Improved Cpk/Ppk &lt;1.0→&gt;1.33 on critical characteristics</div>
 <div class="rb">• 15+ model launches with zero major quality issues (APQP)</div>
 <div class="rb">• Strengthened Poka-Yoke: 80% customer issue reduction, $20K savings</div>
 <div class="rh">CORE COMPETENCIES</div>
-<div class="rb">${j.keywords.join(' · ')}</div>
+<div class="rb">${(Array.isArray(j.matchedKeywords)?j.matchedKeywords:(j.keywords||[])).join(' · ')}</div>
 <div class="rh">EXPERIENCE</div>
 <div class="rb" style="color:var(--white)">Lead Quality Engineer | Yanfeng Automotive Interiors | Jul 2024–Dec 2024</div>
 <div class="rb">• Delivered complete Launch PPAP packages ensuring full Tesla compliance</div>
@@ -1861,40 +1950,64 @@ function runPull() {
   }, 380);
 }
 
-function finishPull() {
-  // archive all current "isNew" jobs → they become old
+async function finishPull() {
+  // Mark existing jobs as not-new before refresh
+  const prevIds = new Set(allJobs.map(j => j.id));
   allJobs = allJobs.map(j => ({ ...j, isNew: false }));
 
-  // pick new jobs from bank
-  const numNew = Math.min(2 + Math.floor(Math.random()*2), PULL_JOB_BANK.length - bankIndex);
-  const newJobs = [];
-  for (let i = 0; i < numNew && bankIndex < PULL_JOB_BANK.length; i++, bankIndex++) {
-    const j = { ...PULL_JOB_BANK[bankIndex], pullDate: fmtDate(new Date()), isNew: true };
-    newJobs.push(j);
-  }
-
-  // a small chance an old job gets "archived"
-  if (allJobs.length > 8 && Math.random() > 0.5) {
-    const idx = allJobs.findIndex(j => !j.isNew && !j.id.toString().startsWith('1'));
-    if (idx !== -1) {
-      const archived = { ...allJobs[idx], archived: true, archivedDate: fmtDate(new Date()) };
-      archivedJobs.unshift(archived);
-      allJobs.splice(idx, 1);
+  // Try to fetch fresh real data from data/jobs.json
+  let newJobs = [];
+  let fetchedReal = false;
+  try {
+    const res  = await fetch('../data/jobs.json?t=' + Date.now()); // bust cache
+    if (res.ok) {
+      const fresh = await res.json();
+      if (Array.isArray(fresh) && fresh.length) {
+        // Mark truly new jobs
+        newJobs      = fresh.filter(j => !j.archived && !prevIds.has(j.id)).map(j => ({ ...j, isNew: true }));
+        const old    = fresh.filter(j => !j.archived &&  prevIds.has(j.id)).map(j => ({ ...j, isNew: false }));
+        allJobs      = [...newJobs, ...old];
+        fetchedReal  = true;
+      }
     }
+  } catch (_) {}
+
+  // If real fetch failed, simulate: pick 2-3 demo variations
+  if (!fetchedReal) {
+    const demos = [
+      {id:'pull-'+Date.now()+'-1',title:'Quality Engineer — APQP Launch',company:'Rivian Automotive',location:'Normal IL / Remote',market:'USA',category:'Launch Quality Engineer',diff:'Medium',score:84,salaryDisplay:'$110K–$135K',remote:true,h1b:true,link:'https://rivian.com/careers',description:'Own quality for EV programs. PFMEA, APQP launch quality, supplier quality, IATF 16949.',matchedKeywords:['EV','PFMEA','APQP','launch','IATF 16949'],pullDate:fmtDate(new Date()),isNew:true,source:'Indeed USA (demo)'},
+      {id:'pull-'+Date.now()+'-2',title:'Lead Supplier Quality Engineer',company:'Ather Energy',location:'Bengaluru',market:'India',category:'Lead Quality Engineer',diff:'Medium',score:86,salaryDisplay:'₹22–38 LPA',remote:false,h1b:false,link:'https://www.atherenergy.com/careers',description:'EV battery supplier quality. APQP, PPAP, supplier audits, corrective actions.',matchedKeywords:['EV Battery','APQP','PPAP','Supplier Audits'],pullDate:fmtDate(new Date()),isNew:true,source:'Indeed India (demo)'},
+      {id:'pull-'+Date.now()+'-3',title:'Assistant Manager — Quality Systems',company:'Aptiv India',location:'Bengaluru',market:'India',category:'Assistant Manager Quality',diff:'Medium',score:80,salaryDisplay:'₹28–44 LPA',remote:false,h1b:false,link:'https://careers.aptiv.com',description:'Manage quality systems. IATF 16949, supplier audits, APQP, Power BI.',matchedKeywords:['Quality Systems','IATF 16949','APQP','Power BI'],pullDate:fmtDate(new Date()),isNew:true,source:'Indeed India (demo)'},
+    ];
+    const n = 1 + Math.floor(Math.random() * 2);
+    newJobs = demos.slice(0, n);
+
+    // Archive one random old job occasionally
+    if (allJobs.length > 8 && Math.random() > 0.6) {
+      const idx = allJobs.findIndex(j => !j.isNew);
+      if (idx !== -1) {
+        archivedJobs.unshift({ ...allJobs[idx], archived: true, archivedDate: fmtDate(new Date()) });
+        allJobs.splice(idx, 1);
+      }
+    }
+    allJobs = [...newJobs, ...allJobs];
   }
 
-  allJobs = [...newJobs, ...allJobs];
+  // Also refresh archived list
+  try {
+    const res = await fetch('../data/archived_jobs.json?t=' + Date.now());
+    if (res.ok) { const arc = await res.json(); if (Array.isArray(arc)) archivedJobs = arc; }
+  } catch (_) {}
 
   const pullDate = new Date();
-  addPullLog(pullDate, newJobs.length, allJobs.length, false);
+  addPullLog(pullDate, newJobs.length, allJobs.length, fetchedReal ? 'Indeed USA + India (real)' : 'Demo simulation');
   document.getElementById('last-pull-time').textContent = 'Last pull: ' + fmtTime(pullDate);
-  document.getElementById('stat-total').textContent = allJobs.length;
-  document.getElementById('stat-new-badge').textContent = '+' + newJobs.length + ' new';
-  document.getElementById('archive-count').textContent = archivedJobs.length + ' job' + (archivedJobs.length!==1?'s':'');
+
+  updateStatBadges();
 
   const progress = document.getElementById('pull-progress');
   progress.classList.remove('show');
-  document.querySelectorAll('.pull-step').forEach(s => { s.classList.remove('done','active'); });
+  document.querySelectorAll('.pull-step').forEach(s => s.classList.remove('done','active'));
 
   const btn = document.getElementById('pull-btn');
   btn.classList.remove('loading');
@@ -1906,7 +2019,8 @@ function finishPull() {
   renderHistoryTimeline();
   renderArchiveGrid();
 
-  showToast(`Pull complete — ${newJobs.length} new job${newJobs.length!==1?'s':''} found!`, '#10b981');
+  const src = fetchedReal ? ' (real data from Indeed)' : ' (demo — run pull_jobs.js for real jobs)';
+  showToast(`Pull complete — ${newJobs.length} new job${newJobs.length!==1?'s':''}${src}`, '#10b981');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1914,11 +2028,10 @@ function finishPull() {
 // ══════════════════════════════════════════════════════════════
 function renderPullLog() {
   const table = document.getElementById('pull-log-table');
-  const sources = ['LinkedIn + Indeed + Naukri', 'LinkedIn + Indeed', 'Indeed + Naukri + Glassdoor', 'LinkedIn + Naukri + H1BJobs'];
   const rows = pullLog.map((p, i) => `
     <div class="pull-log-row">
       <span class="log-time">${fmtTime(p.date)}</span>
-      <span>${sources[i % sources.length]}</span>
+      <span>${p.source || 'Indeed USA + India'}</span>
       <span class="log-new">+${p.newJobs}</span>
       <span class="log-total">${p.total}</span>
       <span class="log-status"><span style="width:6px;height:6px;border-radius:50%;background:var(--mint);display:inline-block"></span> Success</span>
@@ -1984,7 +2097,7 @@ function renderArchiveGrid() {
         ${diffTag(j.diff)}
         <span class="tag tag-archived">Archived ${j.archivedDate||''}</span>
       </div>
-      <div class="jc-desc">${j.desc}</div>
+      <div class="jc-desc">${j.desc||j.description||''}</div>
       <a class="btn" style="font-size:11px" href="${j.link}" target="_blank">View Original →</a>
     </div>`).join('');
 }
@@ -2035,8 +2148,7 @@ function showToast(msg, color='var(--sky)') {
 // ══════════════════════════════════════════════════════════════
 // INITIAL RENDER
 // ══════════════════════════════════════════════════════════════
-renderHistoryTimeline();
-renderArchiveGrid();
+// All rendering is handled by the async boot block above
 </script>
 </body>
 </html>

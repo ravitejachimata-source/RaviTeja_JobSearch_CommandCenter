@@ -1,54 +1,103 @@
 name: Daily Job Pull
 
-# Runs every day at 9:00 AM UTC (2:30 PM IST / 4:00 AM CST)
+# ── SCHEDULE ──────────────────────────────────────────────────────────────────
+# Runs Monday–Friday at 9:00 AM UTC
+#   = 2:30 PM IST  (India)
+#   = 4:00 AM CST  (Austin TX)
+# Also runs manually from GitHub → Actions → "Run workflow"
+
 on:
   schedule:
-    - cron: '0 9 * * 1-5'   # weekdays only
-  workflow_dispatch:          # allows manual trigger from GitHub UI
+    - cron: '0 9 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Enable debug output'
+        required: false
+        default: 'false'
 
 jobs:
   pull-jobs:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Allow the Action to write to the repo (commit new jobs.json)
+    permissions:
+      contents: write
 
     steps:
+
+      # ── 1. Checkout ────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Node.js
+      # ── 2. Node.js setup ───────────────────────────────────────────────
+      - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install dependencies
-        run: |
-          npm install axios cheerio node-fetch
-          # npm install playwright  ← uncomment when adding real scrapers
+      # ── 3. Install deps (none needed — uses only Node built-ins) ───────
+      - name: Check Node version
+        run: node --version
 
-      - name: Run job pull script
+      # ── 4. Run scraper ─────────────────────────────────────────────────
+      - name: Pull jobs from Indeed RSS
         run: node scripts/pull_jobs.js
         env:
-          LINKEDIN_API_KEY: ${{ secrets.LINKEDIN_API_KEY }}    # optional
-          INDEED_API_KEY: ${{ secrets.INDEED_API_KEY }}        # optional
+          DEBUG: ${{ github.event.inputs.debug }}
 
-      - name: Commit updated job data
+      # ── 5. Show what changed ───────────────────────────────────────────
+      - name: Show updated job counts
         run: |
-          git config user.name "github-actions[bot]"
+          echo "=== data/jobs.json ==="
+          node -e "
+            const jobs = JSON.parse(require('fs').readFileSync('data/jobs.json'));
+            const usa   = jobs.filter(j => j.market === 'USA').length;
+            const india = jobs.filter(j => j.market === 'India').length;
+            const cats  = {};
+            ['Quality Engineer','Supplier Quality Engineer','Launch Quality Engineer','Lead Quality Engineer','Assistant Manager Quality']
+              .forEach(t => cats[t] = jobs.filter(j => j.category === t).length);
+            console.log('Total:', jobs.length, '| USA:', usa, '| India:', india);
+            console.log('By title category:');
+            Object.entries(cats).forEach(([k,v]) => console.log(' ', k.padEnd(38), v));
+          "
+          echo ""
+          echo "=== Last pull log entry ==="
+          node -e "
+            const log = JSON.parse(require('fs').readFileSync('data/pull_log.json'));
+            console.log(JSON.stringify(log[0], null, 2));
+          "
+
+      # ── 6. Commit updated data files ───────────────────────────────────
+      - name: Commit job data to repo
+        run: |
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/jobs.json data/pull_log.json
-          git diff --staged --quiet || git commit -m "chore: daily job pull $(date +'%Y-%m-%d')"
-          git push
+          git add data/jobs.json data/pull_log.json data/archived_jobs.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit (0 new jobs found)"
+          else
+            TOTAL=$(node -e "console.log(JSON.parse(require('fs').readFileSync('data/jobs.json')).length)")
+            NEW=$(node -e "const l=JSON.parse(require('fs').readFileSync('data/pull_log.json'));console.log(l[0].newJobs)")
+            git commit -m "jobs: daily pull $(date +'%Y-%m-%d') — ${NEW} new, ${TOTAL} total"
+            git push
+            echo "✅ Committed and pushed"
+          fi
 
-      - name: Send email alert (optional)
-        if: success()
-        run: echo "Add SendGrid/Mailgun step here to email new high-match jobs"
-
-# ─────────────────────────────────────────────────────────────
-# HOW TO SET UP:
-#
-# 1. Create a scripts/ folder and add pull_jobs.js (see README)
-# 2. Create data/jobs.json and data/pull_log.json as empty arrays []
-# 3. Push this file to .github/workflows/daily_pull.yml
-# 4. The Action will run automatically every weekday at 9 AM UTC
-# 5. New jobs are committed to data/jobs.json — the website
-#    reads from this file instead of the hardcoded seed data
-# ─────────────────────────────────────────────────────────────
+      # ── 7. Optional: send email alert for high-score new jobs ──────────
+      # Uncomment and configure SendGrid/Mailgun if you want email alerts
+      # - name: Email new high-match jobs
+      #   if: success()
+      #   run: |
+      #     node -e "
+      #       const jobs = JSON.parse(require('fs').readFileSync('data/jobs.json'));
+      #       const newHigh = jobs.filter(j => j.isNew && j.score >= 85);
+      #       if (newHigh.length > 0) {
+      #         console.log('High-match new jobs to alert:', newHigh.map(j => j.title + ' @ ' + j.company));
+      #         // Add SendGrid/Mailgun API call here
+      #       }
+      #     "
