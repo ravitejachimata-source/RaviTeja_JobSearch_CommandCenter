@@ -1,103 +1,64 @@
-name: Daily Job Pull
-
-# ── SCHEDULE ──────────────────────────────────────────────────────────────────
-# Runs Monday–Friday at 9:00 AM UTC
-#   = 2:30 PM IST  (India)
-#   = 4:00 AM CST  (Austin TX)
-# Also runs manually from GitHub → Actions → "Run workflow"
+name: Daily Job Pull (Apify)
 
 on:
   schedule:
-    - cron: '0 9 * * 1-5'
-  workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Enable debug output'
-        required: false
-        default: 'false'
+    - cron: '0 9 * * 1-5'   # Mon–Fri 9 AM UTC (2:30 PM IST / 4 AM CST)
+  workflow_dispatch:          # manual trigger from GitHub UI
 
 jobs:
   pull-jobs:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
-    # Allow the Action to write to the repo (commit new jobs.json)
     permissions:
       contents: write
 
     steps:
 
-      # ── 1. Checkout ────────────────────────────────────────────────────
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── 2. Node.js setup ───────────────────────────────────────────────
-      - name: Set up Node.js 20
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      # ── 3. Install deps (none needed — uses only Node built-ins) ───────
-      - name: Check Node version
-        run: node --version
-
-      # ── 4. Run scraper ─────────────────────────────────────────────────
-      - name: Pull jobs from Indeed RSS
+      - name: Run Apify job scraper
         run: node scripts/pull_jobs.js
         env:
-          DEBUG: ${{ github.event.inputs.debug }}
+          APIFY_API_KEY: ${{ secrets.APIFY_API_KEY }}
 
-      # ── 5. Show what changed ───────────────────────────────────────────
-      - name: Show updated job counts
+      - name: Show results summary
         run: |
-          echo "=== data/jobs.json ==="
           node -e "
-            const jobs = JSON.parse(require('fs').readFileSync('data/jobs.json'));
-            const usa   = jobs.filter(j => j.market === 'USA').length;
-            const india = jobs.filter(j => j.market === 'India').length;
-            const cats  = {};
-            ['Quality Engineer','Supplier Quality Engineer','Launch Quality Engineer','Lead Quality Engineer','Assistant Manager Quality']
-              .forEach(t => cats[t] = jobs.filter(j => j.category === t).length);
-            console.log('Total:', jobs.length, '| USA:', usa, '| India:', india);
+            const jobs = JSON.parse(require('fs').readFileSync('data/jobs.json','utf8'));
+            const log  = JSON.parse(require('fs').readFileSync('data/pull_log.json','utf8'));
+            const last = log[0];
+            console.log('=== PULL SUMMARY ===');
+            console.log('New jobs:   ', last.newJobs);
+            console.log('Total jobs: ', last.totalJobs);
+            console.log('USA jobs:   ', last.usaJobs);
+            console.log('India jobs: ', last.indiaJobs);
+            console.log('Sources:    ', last.sources.join(', '));
+            console.log('Status:     ', last.status);
+            console.log('');
             console.log('By title category:');
-            Object.entries(cats).forEach(([k,v]) => console.log(' ', k.padEnd(38), v));
-          "
-          echo ""
-          echo "=== Last pull log entry ==="
-          node -e "
-            const log = JSON.parse(require('fs').readFileSync('data/pull_log.json'));
-            console.log(JSON.stringify(log[0], null, 2));
+            Object.entries(last.byCategory).forEach(([k,v])=>console.log(' ',k.padEnd(36),v));
           "
 
-      # ── 6. Commit updated data files ───────────────────────────────────
-      - name: Commit job data to repo
+      - name: Commit job data
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/jobs.json data/pull_log.json data/archived_jobs.json
           if git diff --staged --quiet; then
-            echo "No changes to commit (0 new jobs found)"
+            echo "No changes — 0 new jobs found today"
           else
-            TOTAL=$(node -e "console.log(JSON.parse(require('fs').readFileSync('data/jobs.json')).length)")
             NEW=$(node -e "const l=JSON.parse(require('fs').readFileSync('data/pull_log.json'));console.log(l[0].newJobs)")
-            git commit -m "jobs: daily pull $(date +'%Y-%m-%d') — ${NEW} new, ${TOTAL} total"
+            TOT=$(node -e "const l=JSON.parse(require('fs').readFileSync('data/pull_log.json'));console.log(l[0].totalJobs)")
+            git commit -m "jobs: $(date +'%Y-%m-%d') — ${NEW} new, ${TOT} total [Indeed+Naukri]"
             git push
-            echo "✅ Committed and pushed"
+            echo "Pushed $NEW new jobs"
           fi
-
-      # ── 7. Optional: send email alert for high-score new jobs ──────────
-      # Uncomment and configure SendGrid/Mailgun if you want email alerts
-      # - name: Email new high-match jobs
-      #   if: success()
-      #   run: |
-      #     node -e "
-      #       const jobs = JSON.parse(require('fs').readFileSync('data/jobs.json'));
-      #       const newHigh = jobs.filter(j => j.isNew && j.score >= 85);
-      #       if (newHigh.length > 0) {
-      #         console.log('High-match new jobs to alert:', newHigh.map(j => j.title + ' @ ' + j.company));
-      #         // Add SendGrid/Mailgun API call here
-      #       }
-      #     "
