@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "timestamp": "2026-04-28T23:47:27.709Z",
+    "newJobs": 215,
+    "totalJobs": 215,
+    "usaJobs": 0,
+    "indiaJobs": 215,
+    "archivedJobs": 0,
+    "searchesRun": 60,
+    "searchErrors": 43,
+    "byCategory": {
+      "Quality Engineer": 190,
+      "Supplier Quality Engineer": 5,
+      "Launch Quality Engineer": 0,
+      "Lead Quality Engineer": 9,
+      "Assistant Manager Quality": 11
+    },
+    "sources": [
+      "Indeed USA",
+      "Indeed India",
+      "Naukri.com"
+    ],
+    "status": "partial"
+  }
+]
