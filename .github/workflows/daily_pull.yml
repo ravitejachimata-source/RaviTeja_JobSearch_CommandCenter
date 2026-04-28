@@ -1,0 +1,54 @@
+name: Daily Job Pull
+
+# Runs every day at 9:00 AM UTC (2:30 PM IST / 4:00 AM CST)
+on:
+  schedule:
+    - cron: '0 9 * * 1-5'   # weekdays only
+  workflow_dispatch:          # allows manual trigger from GitHub UI
+
+jobs:
+  pull-jobs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install axios cheerio node-fetch
+          # npm install playwright  ← uncomment when adding real scrapers
+
+      - name: Run job pull script
+        run: node scripts/pull_jobs.js
+        env:
+          LINKEDIN_API_KEY: ${{ secrets.LINKEDIN_API_KEY }}    # optional
+          INDEED_API_KEY: ${{ secrets.INDEED_API_KEY }}        # optional
+
+      - name: Commit updated job data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/jobs.json data/pull_log.json
+          git diff --staged --quiet || git commit -m "chore: daily job pull $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Send email alert (optional)
+        if: success()
+        run: echo "Add SendGrid/Mailgun step here to email new high-match jobs"
+
+# ─────────────────────────────────────────────────────────────
+# HOW TO SET UP:
+#
+# 1. Create a scripts/ folder and add pull_jobs.js (see README)
+# 2. Create data/jobs.json and data/pull_log.json as empty arrays []
+# 3. Push this file to .github/workflows/daily_pull.yml
+# 4. The Action will run automatically every weekday at 9 AM UTC
+# 5. New jobs are committed to data/jobs.json — the website
+#    reads from this file instead of the hardcoded seed data
+# ─────────────────────────────────────────────────────────────

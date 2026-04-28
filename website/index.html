@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ravi Teja Chimata — Job Search Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy2: #162032;
+    --navy3: #1e2d40;
+    --steel: #2a3d52;
+    --slate: #4a6080;
+    --sky: #3b82f6;
+    --sky2: #60a5fa;
+    --gold: #f59e0b;
+    --gold2: #fbbf24;
+    --mint: #10b981;
+    --coral: #ef4444;
+    --amber: #f97316;
+    --lavender: #8b5cf6;
+    --white: #f8fafc;
+    --muted: #94a3b8;
+    --card: #162032;
+    --card2: #1e2d40;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --easy: #10b981;
+    --medium: #f59e0b;
+    --hard: #ef4444;
+    --usa: #3b82f6;
+    --india: #10b981;
+    --new: #8b5cf6;
+    --radius: 12px;
+    --radius2: 8px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --glow: 0 0 40px rgba(59,130,246,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy2); }
+  ::-webkit-scrollbar-thumb { background: var(--steel); border-radius: 3px; }
+
+  /* ── GRID NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--navy2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    padding: 24px 0;
+  }
+
+  .logo-area {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .logo-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    color: var(--white);
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+
+  .logo-title {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    padding: 0 8px;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: var(--radius2);
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+  }
+
+  .nav-btn:hover { background: var(--steel); color: var(--white); }
+
+  .nav-btn.active {
+    background: rgba(59,130,246,0.15);
+    color: var(--sky2);
+    font-weight: 500;
+  }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pull-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius2);
+    border: 1px solid var(--sky);
+    background: rgba(59,130,246,0.1);
+    color: var(--sky2);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .pull-btn:hover {
+    background: rgba(59,130,246,0.2);
+    border-color: var(--sky2);
+    transform: translateY(-1px);
+  }
+
+  .pull-btn.loading { opacity: 0.7; pointer-events: none; }
+
+  .last-pull {
+    font-size: 10px;
+    color: var(--text3);
+    text-align: center;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    background: rgba(13,27,42,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 50;
+  }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--white);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .search-input {
+    background: var(--navy3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    padding: 8px 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    width: 240px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-input:focus { border-color: var(--sky); }
+  .search-input::placeholder { color: var(--text3); }
+
+  /* ── CONTENT ── */
+  .content {
+    padding: 28px 32px;
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── STAT ROW ── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .stat-card.blue::before { background: var(--sky); }
+  .stat-card.green::before { background: var(--mint); }
+  .stat-card.gold::before { background: var(--gold); }
+  .stat-card.purple::before { background: var(--lavender); }
+  .stat-card.coral::before { background: var(--coral); }
+
+  .stat-card:hover { border-color: var(--border2); }
+
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--white);
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+
+  .stat-lbl {
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+  }
+
+  .stat-delta {
+    position: absolute;
+    top: 14px; right: 14px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 100px;
+  }
+
+  .delta-up { background: rgba(16,185,129,0.15); color: var(--mint); }
+  .delta-new { background: rgba(139,92,246,0.15); color: var(--lavender); }
+
+  /* ── FILTERS ── */
+  .filter-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .filter-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+
+  .filter-chip:hover { border-color: var(--sky); color: var(--sky2); }
+  .filter-chip.active { background: var(--sky); border-color: var(--sky); color: #fff; font-weight: 500; }
+  .filter-chip.green.active { background: var(--mint); border-color: var(--mint); }
+  .filter-chip.gold.active { background: var(--gold); border-color: var(--gold); color: #000; }
+  .filter-chip.coral.active { background: var(--coral); border-color: var(--coral); }
+  .filter-chip.purple.active { background: var(--lavender); border-color: var(--lavender); }
+
+  .sort-select {
+    background: var(--navy3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    padding: 6px 10px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    outline: none;
+    margin-left: auto;
+  }
+
+  /* ── JOB SECTIONS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--white);
+  }
+
+  .section-badge {
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-new { background: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+  .badge-archive { background: rgba(100,116,139,0.2); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── JOB GRID ── */
+  .job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  /* ── JOB CARD ── */
+  .job-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .job-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: linear-gradient(135deg, rgba(59,130,246,0.04), transparent);
+  }
+
+  .job-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .job-card:hover::after { opacity: 1; }
+  .job-card.selected { border-color: var(--sky); box-shadow: 0 0 0 1px var(--sky), var(--shadow); }
+
+  .job-card.archived {
+    opacity: 0.65;
+  }
+
+  .job-card.archived:hover { opacity: 0.9; }
+
+  /* NEW pulse dot */
+  .new-dot {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--lavender);
+    box-shadow: 0 0 8px var(--lavender);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .jc-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .jc-company {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .jc-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.3;
+  }
+
+  /* Score donut */
+  .score-wrap { flex-shrink: 0; }
+
+  .score-donut {
+    width: 50px;
+    height: 50px;
+  }
+
+  .jc-meta {
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .meta-dot { color: var(--text3); }
+
+  .jc-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .tag {
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .tag-easy { background: rgba(16,185,129,0.15); color: #34d399; }
+  .tag-medium { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .tag-hard { background: rgba(239,68,68,0.15); color: #f87171; }
+  .tag-usa { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .tag-india { background: rgba(16,185,129,0.15); color: #34d399; }
+  .tag-remote { background: rgba(139,92,246,0.15); color: #a78bfa; }
+  .tag-h1b { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .tag-new { background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+  .tag-archived { background: rgba(100,116,139,0.15); color: #94a3b8; }
+
+  .jc-salary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--gold2);
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .jc-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .jc-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 7px 14px;
+    border-radius: var(--radius2);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text);
+  }
+
+  .btn:hover { background: var(--steel); color: var(--white); }
+
+  .btn-primary {
+    background: var(--sky);
+    border-color: var(--sky);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: #2563eb; border-color: #2563eb; }
+
+  .btn-gold {
+    background: rgba(245,158,11,0.1);
+    border-color: rgba(245,158,11,0.4);
+    color: var(--gold2);
+  }
+
+  .btn-gold:hover { background: rgba(245,158,11,0.2); }
+
+  /* ── DETAIL DRAWER ── */
+  .detail-drawer {
+    display: none;
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-drawer.open { display: block; }
+
+  .drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .drawer-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .drawer-company {
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  .drawer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .drawer-section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text3);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .kw-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .kw {
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.25);
+    color: var(--sky2);
+    font-weight: 500;
+  }
+
+  .resume-box {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--text2);
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .resume-box .rh {
+    color: var(--sky2);
+    font-weight: 500;
+    margin-top: 8px;
+    margin-bottom: 2px;
+  }
+
+  .resume-box .rh:first-child { margin-top: 0; }
+
+  .resume-box .rb { color: var(--text2); }
+
+  .score-bar-wrap {
+    margin-bottom: 6px;
+  }
+
+  .score-bar-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 3px;
+  }
+
+  .score-bar-bg {
+    height: 5px;
+    background: var(--navy3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--sky), var(--mint));
+    transition: width 0.8s ease;
+  }
+
+  /* ── PULL PROGRESS ── */
+  .pull-progress {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .pull-progress.show { display: block; }
+
+  .pull-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--sky);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .pull-steps {
+    list-style: none;
+    text-align: left;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .pull-step {
+    font-size: 12px;
+    color: var(--text3);
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s;
+  }
+
+  .pull-step.done { color: var(--mint); }
+  .pull-step.active { color: var(--sky2); }
+
+  .step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--text3);
+    transition: background 0.3s;
+  }
+
+  .pull-step.done .step-dot { background: var(--mint); }
+  .pull-step.active .step-dot { background: var(--sky); animation: pulse 1s infinite; }
+
+  /* ── ARCHIVE SECTION ── */
+  .archive-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-bottom: 14px;
+    transition: border-color 0.15s;
+  }
+
+  .archive-header:hover { border-color: var(--border2); }
+
+  .archive-toggle {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text3);
+    transition: transform 0.2s;
+  }
+
+  .archive-toggle.open { transform: rotate(180deg); }
+
+  .archive-body { display: none; }
+  .archive-body.open { display: block; }
+
+  /* ── PULL LOG ── */
+  .pull-log {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .pull-log-header {
+    padding: 12px 16px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 140px 1fr 80px 80px 80px;
+    gap: 10px;
+  }
+
+  .pull-log-row {
+    padding: 10px 16px;
+    display: grid;
+    grid-template-columns: 140px 1fr 80px 80px 80px;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .pull-log-row:hover { background: var(--card); }
+  .pull-log-row:last-child { border-bottom: none; }
+
+  .log-time { font-family: 'JetBrains Mono', monospace; color: var(--text3); font-size: 11px; }
+  .log-new { color: var(--lavender); font-weight: 600; }
+  .log-total { color: var(--sky2); font-weight: 600; }
+  .log-status { display: flex; align-items: center; gap: 4px; }
+
+  /* ── OVERVIEW PANELS ── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .ov-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+
+  .ov-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .skill-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .skill-name {
+    font-size: 12px;
+    color: var(--text2);
+    width: 140px;
+    flex-shrink: 0;
+  }
+
+  .skill-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--navy3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .skill-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .skill-pct {
+    font-size: 11px;
+    color: var(--text3);
+    width: 32px;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .role-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .role-item:last-child { border-bottom: none; }
+
+  .role-rank {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--steel);
+    width: 28px;
+    flex-shrink: 0;
+  }
+
+  .role-info { flex: 1; }
+  .role-name { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+  .role-sub { font-size: 11px; color: var(--text3); }
+
+  .role-match {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--mint);
+    font-weight: 500;
+  }
+
+  /* ── RESUME PANEL ── */
+  .resume-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .resume-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: all 0.15s;
+  }
+
+  .resume-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-1px);
+  }
+
+  .rc-market {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .rc-title { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 3px; }
+  .rc-company { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+
+  .rc-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .rc-score-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--navy3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .rc-score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sky), var(--mint));
+    border-radius: 2px;
+  }
+
+  /* ── STRATEGY PANEL ── */
+  .strategy-section {
+    margin-bottom: 20px;
+  }
+
+  .strategy-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .strat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+
+  .strat-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .strat-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .strat-card li {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-left: 16px;
+    list-style: disc;
+    margin-bottom: 3px;
+  }
+
+  .week-plan {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .week-card {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 12px;
+  }
+
+  .week-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--steel);
+    margin-bottom: 6px;
+  }
+
+  .week-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sky2);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .week-tasks {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.6;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--white);
+    box-shadow: var(--shadow);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── HEADER GLOW ── */
+  .page-glow {
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(59,130,246,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── TIMELINE (history) ── */
+  .timeline {
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tl-group { margin-bottom: 20px; }
+
+  .tl-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-top: 3px;
+  }
+
+  .tl-date-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tl-jobs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .stat-row { grid-template-columns: repeat(3, 1fr); }
+    .overview-grid { grid-template-columns: 1fr; }
+    .drawer-grid { grid-template-columns: 1fr; }
+    .strategy-row { grid-template-columns: 1fr; }
+    .week-plan { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .main { margin-left: 0; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .pull-log-header, .pull-log-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-glow"></div>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo-name">Ravi Teja Chimata</div>
+    <div class="logo-title">Job Search Command Center</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Navigation</div>
+    <button class="nav-btn active" onclick="switchPanel('overview', this)">
+      <span class="nav-icon">◈</span> Overview
+    </button>
+    <button class="nav-btn" onclick="switchPanel('jobs', this)">
+      <span class="nav-icon">⊞</span> Job Listings
+      <span style="margin-left:auto;background:rgba(139,92,246,0.2);color:#a78bfa;font-size:10px;padding:1px 6px;border-radius:100px;font-weight:600" id="job-count-badge">10</span>
+    </button>
+    <button class="nav-btn" onclick="switchPanel('history', this)">
+      <span class="nav-icon">◷</span> History & Archive
+    </button>
+    <button class="nav-btn" onclick="switchPanel('resumes', this)">
+      <span class="nav-icon">📄</span> Tailored Resumes
+    </button>
+    <button class="nav-btn" onclick="switchPanel('strategy', this)">
+      <span class="nav-icon">◎</span> Strategy
+    </button>
+  </div>
+
+  <div class="nav-section" style="margin-top:8px">
+    <div class="nav-label">Profile</div>
+    <div style="padding:10px 8px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Experience</div>
+      <div style="font-size:13px;color:var(--white);font-weight:500;margin-bottom:10px">8+ Years</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Status</div>
+      <div style="font-size:12px;color:var(--mint);font-weight:500;display:flex;align-items:center;gap:5px;margin-bottom:10px">
+        <span style="width:6px;height:6px;background:var(--mint);border-radius:50%;display:inline-block;animation:pulse 2s infinite"></span>
+        Actively Looking
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Markets</div>
+      <div style="display:flex;gap:5px">
+        <span style="background:rgba(59,130,246,0.15);color:#60a5fa;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:600">USA</span>
+        <span style="background:rgba(16,185,129,0.15);color:#34d399;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:600">India</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="pull-btn" id="pull-btn" onclick="runPull()">
+      <span id="pull-icon">↻</span>
+      <span id="pull-text">Pull Latest Jobs</span>
+    </button>
+    <div class="last-pull" id="last-pull-time">Last pull: Today 09:00 AM</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Overview</div>
+    <div class="topbar-right">
+      <input type="text" class="search-input" placeholder="Search jobs, companies, keywords…" id="global-search" oninput="handleSearch()">
+      <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="current-date"></span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ PULL PROGRESS ══ -->
+    <div class="pull-progress" id="pull-progress">
+      <div class="pull-spinner"></div>
+      <div style="font-size:13px;color:var(--white);margin-bottom:12px;font-weight:500">Scanning job boards…</div>
+      <ul class="pull-steps" id="pull-steps">
+        <li class="pull-step" data-step="0"><span class="step-dot"></span>Connecting to LinkedIn Jobs API</li>
+        <li class="pull-step" data-step="1"><span class="step-dot"></span>Scanning Indeed — automotive quality</li>
+        <li class="pull-step" data-step="2"><span class="step-dot"></span>Scanning Naukri.com — India openings</li>
+        <li class="pull-step" data-step="3"><span class="step-dot"></span>Filtering H1B sponsor companies</li>
+        <li class="pull-step" data-step="4"><span class="step-dot"></span>Scoring against resume keywords</li>
+        <li class="pull-step" data-step="5"><span class="step-dot"></span>Deduplicating with history</li>
+        <li class="pull-step" data-step="6"><span class="step-dot"></span>Archiving old listings</li>
+      </ul>
+    </div>
+
+    <!-- ══ OVERVIEW PANEL ══ -->
+    <div class="panel active" id="panel-overview">
+      <div class="stat-row">
+        <div class="stat-card blue">
+          <div class="stat-num" id="stat-total">10</div>
+          <div class="stat-lbl">Active Jobs</div>
+          <span class="stat-delta delta-new" id="stat-new-badge">+3 new</span>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-num">5</div>
+          <div class="stat-lbl">USA (H1B)</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-num">5</div>
+          <div class="stat-lbl">India Roles</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-num">10</div>
+          <div class="stat-lbl">Tailored Resumes</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-num" id="stat-pulls">1</div>
+          <div class="stat-lbl">Total Pulls</div>
+        </div>
+      </div>
+
+      <div class="overview-grid">
+        <div class="ov-card">
+          <div class="ov-title">Skill Match Coverage</div>
+          <div class="skill-row"><span class="skill-name">APQP / PPAP / PFMEA</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:100%;background:var(--mint)"></div></div><span class="skill-pct">100%</span></div>
+          <div class="skill-row"><span class="skill-name">8D / DMAIC / RCA</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:98%;background:var(--mint)"></div></div><span class="skill-pct">98%</span></div>
+          <div class="skill-row"><span class="skill-name">EV Battery Quality</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:95%;background:var(--sky)"></div></div><span class="skill-pct">95%</span></div>
+          <div class="skill-row"><span class="skill-name">Supplier Quality (SQM)</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:95%;background:var(--sky)"></div></div><span class="skill-pct">95%</span></div>
+          <div class="skill-row"><span class="skill-name">SPC / Cp/Cpk / DOE</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:92%;background:var(--sky)"></div></div><span class="skill-pct">92%</span></div>
+          <div class="skill-row"><span class="skill-name">IATF 16949 / CQI</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:90%;background:var(--gold)"></div></div><span class="skill-pct">90%</span></div>
+          <div class="skill-row"><span class="skill-name">GD&T / MSA / Gage R&R</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:88%;background:var(--gold)"></div></div><span class="skill-pct">88%</span></div>
+          <div class="skill-row"><span class="skill-name">Team Leadership</span><div class="skill-bar-bg"><div class="skill-bar-fill" style="width:65%;background:var(--amber)"></div></div><span class="skill-pct">65%</span></div>
+        </div>
+
+        <div class="ov-card">
+          <div class="ov-title">Top 5 Recommended Roles</div>
+          <div class="role-item">
+            <div class="role-rank">1</div>
+            <div class="role-info"><div class="role-name">Senior / Lead Quality Engineer</div><div class="role-sub">Tesla · Yanfeng brand equity is premium signal</div></div>
+            <div class="role-match">96%</div>
+          </div>
+          <div class="role-item">
+            <div class="role-rank">2</div>
+            <div class="role-info"><div class="role-name">Supplier Quality Manager</div><div class="role-sub">End-to-end SQM depth · PPAP · SCAR · Audits</div></div>
+            <div class="role-match">93%</div>
+          </div>
+          <div class="role-item">
+            <div class="role-rank">3</div>
+            <div class="role-info"><div class="role-name">Advanced Quality Engineer (NPI)</div><div class="role-sub">15+ launches · APQP gate reviews · EV NPI</div></div>
+            <div class="role-match">90%</div>
+          </div>
+          <div class="role-item">
+            <div class="role-rank">4</div>
+            <div class="role-info"><div class="role-name">Quality Manager — Manufacturing</div><div class="role-sub">Stretch · add team size to resume first</div></div>
+            <div class="role-match">82%</div>
+          </div>
+          <div class="role-item">
+            <div class="role-rank">5</div>
+            <div class="role-info"><div class="role-name">Supplier Development Engineer</div><div class="role-sub">Growing at EV OEMs · Ola · Ather · Tata EV</div></div>
+            <div class="role-match">88%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ov-card">
+        <div class="ov-title">Salary Benchmarks</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div style="font-size:11px;color:var(--sky2);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.8px">🇺🇸 USA — H1B Transfer Ready</div>
+            <div style="font-size:12px;color:var(--text2);line-height:2">
+              Senior QE: <span style="color:var(--gold2);font-family:'JetBrains Mono',monospace">$95K–$118K</span><br>
+              Lead QE: <span style="color:var(--gold2);font-family:'JetBrains Mono',monospace">$105K–$130K</span><br>
+              SQ Manager: <span style="color:var(--gold2);font-family:'JetBrains Mono',monospace">$115K–$145K</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--mint);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.8px">🇮🇳 India — Open to Relocation</div>
+            <div style="font-size:12px;color:var(--text2);line-height:2">
+              Senior QE: <span style="color:var(--gold2);font-family:'JetBrains Mono',monospace">₹20–35 LPA</span><br>
+              Lead QE: <span style="color:var(--gold2);font-family:'JetBrains Mono',monospace">₹28–42 LPA</span><br>
+              SQ Manager (MNC): <span style="color:var(--gold2);font-family:'JetBrains Mono',monospace">₹30–50 LPA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ JOBS PANEL ══ -->
+    <div class="panel" id="panel-jobs">
+      <div class="filter-bar">
+        <span class="filter-label">Market</span>
+        <div class="filter-group" id="filter-market">
+          <button class="filter-chip active" onclick="setFilter('market','all',this)">All</button>
+          <button class="filter-chip" onclick="setFilter('market','USA',this)">🇺🇸 USA</button>
+          <button class="filter-chip green" onclick="setFilter('market','India',this)">🇮🇳 India</button>
+        </div>
+        <span class="filter-label" style="margin-left:8px">Difficulty</span>
+        <div class="filter-group" id="filter-diff">
+          <button class="filter-chip active" onclick="setFilter('diff','all',this)">All</button>
+          <button class="filter-chip green" onclick="setFilter('diff','Easy',this)">Easy</button>
+          <button class="filter-chip gold" onclick="setFilter('diff','Medium',this)">Medium</button>
+          <button class="filter-chip coral" onclick="setFilter('diff','Hard',this)">Hard</button>
+        </div>
+        <span class="filter-label" style="margin-left:8px">Type</span>
+        <div class="filter-group" id="filter-type">
+          <button class="filter-chip active" onclick="setFilter('type','all',this)">All</button>
+          <button class="filter-chip purple" onclick="setFilter('type','remote',this)">Remote OK</button>
+          <button class="filter-chip gold" onclick="setFilter('type','h1b',this)">H1B Sponsor</button>
+        </div>
+        <select class="sort-select" id="sort-select" onchange="renderJobs()">
+          <option value="score">Sort: Match Score</option>
+          <option value="date">Sort: Date Added</option>
+          <option value="salary_num">Sort: Salary</option>
+          <option value="company">Sort: Company A–Z</option>
+        </select>
+      </div>
+
+      <div id="jobs-container"></div>
+      <div class="detail-drawer" id="job-detail"></div>
+    </div>
+
+    <!-- ══ HISTORY PANEL ══ -->
+    <div class="panel" id="panel-history">
+      <div class="section-header" style="margin-bottom:20px">
+        <div class="section-title">Pull History & Log</div>
+        <div class="section-badge badge-archive" id="history-count">1 pull</div>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="pull-log" id="pull-log-table">
+        <div class="pull-log-header">
+          <span>Timestamp</span>
+          <span>Source</span>
+          <span>New Jobs</span>
+          <span>Total</span>
+          <span>Status</span>
+        </div>
+        <!-- rows injected by JS -->
+      </div>
+
+      <div style="margin-top:24px">
+        <div class="archive-header" onclick="toggleArchive()">
+          <div style="font-size:13px;font-weight:500;color:var(--white)">Archived Jobs</div>
+          <span class="section-badge badge-archive" id="archive-count">0 jobs</span>
+          <div style="font-size:12px;color:var(--text3);margin-left:8px">Jobs from previous pulls no longer active</div>
+          <span class="archive-toggle" id="archive-toggle">▾</span>
+        </div>
+        <div class="archive-body" id="archive-body">
+          <div class="job-grid" id="archive-grid"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px">
+        <div class="section-header" style="margin-bottom:14px">
+          <div class="section-title" style="font-size:16px">All Historical Jobs by Pull Date</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="timeline" id="history-timeline"></div>
+      </div>
+    </div>
+
+    <!-- ══ RESUMES PANEL ══ -->
+    <div class="panel" id="panel-resumes">
+      <div style="margin-bottom:16px;font-size:13px;color:var(--text2)">
+        10 ATS-optimised resumes — one per job, tailored with role-specific keywords. Download each .docx and submit directly. USA resumes include "H1B Transfer Ready". India resumes show "Open to Relocation across India" — no Austin TX.
+      </div>
+      <div class="resume-grid" id="resume-grid"></div>
+    </div>
+
+    <!-- ══ STRATEGY PANEL ══ -->
+    <div class="panel" id="panel-strategy">
+
+      <div style="margin-bottom:16px">
+        <div class="section-title" style="margin-bottom:4px">Application Plan</div>
+        <div style="font-size:12px;color:var(--text3)">Week-by-week execution roadmap</div>
+      </div>
+
+      <div class="week-plan" style="margin-bottom:20px">
+        <div class="week-card">
+          <div class="week-num">W1</div>
+          <div class="week-title">USA Blitz</div>
+          <div class="week-tasks">Apply all 5 USA jobs with tailored resumes. Set LinkedIn "Open to Work" (recruiter-visible). Email ex-Tesla/Yanfeng managers directly.</div>
+        </div>
+        <div class="week-card">
+          <div class="week-num">W2</div>
+          <div class="week-title">India Push</div>
+          <div class="week-tasks">Apply all 5 India jobs. Create Naukri.com Premium profile. Reach out to 5 VIT alumni in auto QE roles. Cold-email 3 India recruiters.</div>
+        </div>
+        <div class="week-card">
+          <div class="week-num">W3</div>
+          <div class="week-title">Follow-Up</div>
+          <div class="week-tasks">Follow up all W1 USA apps (7-day rule). Pull fresh jobs via dashboard. Apply to 5 new roles. Schedule 2 networking calls.</div>
+        </div>
+        <div class="week-card">
+          <div class="week-num">W4</div>
+          <div class="week-title">Interview Prep</div>
+          <div class="week-tasks">5 STAR stories: PPAP, 8D, defect reduction, supplier audit, launch. Research company quality challenges. Negotiate salary confidently.</div>
+        </div>
+      </div>
+
+      <div class="strategy-row">
+        <div class="strat-card">
+          <div class="strat-title"><span class="strat-icon" style="background:rgba(59,130,246,0.15);color:var(--sky2)">H</span> H1B Strategy (USA)</div>
+          <ul>
+            <li>Target confirmed H1B sponsors: Toyota NA, Ford, Aptiv, Nifco, Yinlun TDI (100% FY2025 approval rate).</li>
+            <li>Always say "H1B Transfer Ready" — faster than cap-subject. Saves company 6–12 months.</li>
+            <li>Avoid jobs stating "authorized to work without sponsorship now or in future."</li>
+            <li>Tesla, Yanfeng, Aisin: warm rehire — contact former managers on LinkedIn first.</li>
+            <li>Salary ask: $105K–$130K for Sr QE. Never undersell — Tesla pedigree commands premium.</li>
+          </ul>
+        </div>
+        <div class="strat-card">
+          <div class="strat-title"><span class="strat-icon" style="background:rgba(16,185,129,0.15);color:var(--mint)">IN</span> India Market Advice</div>
+          <ul>
+            <li>Lead every cover letter and LinkedIn message with Tesla EV battery experience — rare in India.</li>
+            <li>Best cities: Pune (most jobs), Chennai (Hyundai, Ford), Bengaluru (EV startups), Manesar (Maruti, Denso).</li>
+            <li>Use Naukri.com as primary board — create "Premium" profile for Senior-level visibility.</li>
+            <li>VIT alumni network on LinkedIn — warm referrals dramatically increase response rate.</li>
+            <li>Salary: ₹28–42 LPA realistic for Lead/SQM at MNC. EV startups may offer equity on top.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="strategy-row">
+        <div class="strat-card">
+          <div class="strat-title"><span class="strat-icon" style="background:rgba(245,158,11,0.15);color:var(--gold2)">CV</span> Resume Improvements (Do First)</div>
+          <ul>
+            <li>Add "Led team of X engineers/technicians" to every role — required for manager-level screening.</li>
+            <li>Specify "Six Sigma Green Belt" or "Black Belt" — ambiguous otherwise; many ATS systems filter on belt level.</li>
+            <li>Move Achievements block immediately after Summary for first-scan impact.</li>
+            <li>Add Power BI / Tableau / SQL to every resume header — these differentiate from pure QE candidates.</li>
+            <li>For India: replace Austin TX with "Open to Relocation | VIT Alumni" — done in your 5 India resumes.</li>
+          </ul>
+        </div>
+        <div class="strat-card">
+          <div class="strat-title"><span class="strat-icon" style="background:rgba(139,92,246,0.15);color:var(--lavender)">LI</span> LinkedIn Optimisation</div>
+          <ul>
+            <li>Headline: "Lead QE | Tesla · Yanfeng · Aisin | APQP · EV Battery | Open to USA & India"</li>
+            <li>Featured section: pin your 80% customer issue reduction Poka-Yoke achievement.</li>
+            <li>Ask 2–3 Tesla/Yanfeng colleagues for written recommendations — social proof multiplier.</li>
+            <li>Post 1 quality insight weekly: PFMEA tip, SPC case study, EV battery quality challenge.</li>
+            <li>Set job alerts: "Supplier Quality Engineer" "Lead Quality Engineer" in both USA and India.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">
+  <div class="toast-dot" id="toast-dot"></div>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════════
+const NOW = new Date();
+
+const JOBS_SEED = [
+  {id:1,title:"Sr. Quality Engineer — EV Battery",company:"Tesla Inc.",location:"Austin TX / Sparks NV",market:"USA",diff:"Easy",score:96,salaryDisplay:"$105K–$130K",salaryNum:117500,remote:false,h1b:true,link:"https://www.tesla.com/careers",file:"01_Tesla_SrQualityEngineer_USA.docx",desc:"Own incoming, in-process, and outgoing quality for EV battery modules. Lead PFMEA, Control Plans, MRB/NCM, 8D/RCCA. Directly mirrors your Tesla Sparks role — highest match on the board.",keywords:["PFMEA","EV Battery","MRB/NCM","8D","RCCA","Control Plans","SPC","FPY"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
+  {id:2,title:"Supplier Quality Engineer",company:"Ford Motor Company",location:"Dearborn MI / Remote-Hybrid",market:"USA",diff:"Medium",score:88,salaryDisplay:"$95K–$118K",salaryNum:106500,remote:true,h1b:true,link:"https://jobs.ford.com",file:"02_Ford_SupplierQualityEngineer_USA.docx",desc:"Lead supplier quality for automotive components. PPAP, APQP, SCAR, supplier audits, GD&T, IATF 16949 compliance. H1B sponsorship confirmed.",keywords:["PPAP","APQP","SCAR","GD&T","Supplier Audits","IATF 16949","8D","Cp/Cpk"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
+  {id:3,title:"Quality Engineer — Automotive Mfg.",company:"Toyota Motor North America",location:"Plano TX / Georgetown KY",market:"USA",diff:"Medium",score:86,salaryDisplay:"$90K–$115K",salaryNum:102500,remote:false,h1b:true,link:"https://www.toyota.com/usa/operations/careers",file:"03_Toyota_QualityEngineer_USA.docx",desc:"Drive APQP, PFMEA, SPC, and supplier quality management aligned with Toyota Production System. IATF 16949 compliance. H1B sponsorship confirmed (11/11 approvals FY2025).",keywords:["APQP","PFMEA","SPC","TPS / Kaizen","IATF 16949","Supplier Quality"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
+  {id:4,title:"Senior Supplier Quality Engineer",company:"Aptiv (formerly Delphi)",location:"Austin TX / Hybrid",market:"USA",diff:"Medium",score:87,salaryDisplay:"$100K–$125K",salaryNum:112500,remote:true,h1b:true,link:"https://careers.aptiv.com",file:"04_Aptiv_SrSQE_USA.docx",desc:"Manage supplier quality for EV electrical/electronic components. PPAP, CQI audits, SCAR, APQP, corrective actions. Aptiv Austin office growing. H1B transfer supported.",keywords:["Supplier Quality","PPAP","CQI Audits","APQP","PFMEA","EV","SCAR","MRB"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
+  {id:5,title:"Supplier Quality Engineer",company:"Nifco America Corp.",location:"Multiple US / Hybrid-Remote",market:"USA",diff:"Easy",score:90,salaryDisplay:"$85K–$108K",salaryNum:96500,remote:true,h1b:true,link:"https://www.indeed.com/cmp/Nifco-America-Corp",file:"05_Nifco_SQE_USA.docx",desc:"Lead supplier issues to closure using 8D, LPA, PDCA. Conduct supplier audits, manage PPAP and SCAR. Plastic injection molding. Visa sponsorship confirmed.",keywords:["8D","LPA","PPAP","Supplier Audits","IATF 16949","Injection Molding","SCAR"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
+  {id:6,title:"Supplier Quality Manager",company:"Bosch India",location:"Pune / Bengaluru",market:"India",diff:"Easy",score:93,salaryDisplay:"₹28–42 LPA",salaryNum:42,remote:false,h1b:false,link:"https://www.bosch-career.in/en/jobs/",file:"06_Bosch_SQManager_India.docx",desc:"Lead supplier quality team for automotive components. Manage PPAP, supplier audits, SCAR closure, IATF 16949 compliance. Bosch actively recruits US-returned engineers.",keywords:["Supplier Quality Manager","PPAP","Supplier Audits","SCAR","IATF 16949","APQP","KPI","MRB"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
+  {id:7,title:"Senior Quality Engineer — EV",company:"Tata Motors / TPEM",location:"Pune",market:"India",diff:"Easy",score:91,salaryDisplay:"₹22–35 LPA",salaryNum:35,remote:false,h1b:false,link:"https://www.tatamotors.com/careers/",file:"07_TataMotors_SrQE_EV_India.docx",desc:"Quality engineering for Tata EV platforms (Nexon EV, Punch EV). APQP, PFMEA, Control Plans for battery and BIW components. Tesla EV battery background is a direct match.",keywords:["EV Battery","APQP","PFMEA","Control Plans","SPC","CTQ","Supplier Quality","IATF 16949"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
+  {id:8,title:"Lead Quality Engineer — Interiors",company:"Motherson Group",location:"Noida / Pune",market:"India",diff:"Medium",score:88,salaryDisplay:"₹20–32 LPA",salaryNum:32,remote:false,h1b:false,link:"https://motherson.com/career/",file:"08_Motherson_LeadQE_India.docx",desc:"Lead quality for plastic trim & assembly. Customer quality, PPAP, PFMEA, supplier quality for Tesla/Toyota-facing programs. Yanfeng interior trim experience is a direct fit.",keywords:["PPAP","PFMEA","Injection Molding","Class A Surface","AAR","8D","IATF 16949","Supplier Quality"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
+  {id:9,title:"Supplier Quality Manager",company:"Valeo India",location:"Chennai / Pune",market:"India",diff:"Medium",score:85,salaryDisplay:"₹25–40 LPA",salaryNum:40,remote:false,h1b:false,link:"https://careers.valeo.com/",file:"09_Valeo_SQManager_India.docx",desc:"Oversee supplier qualification, PPAP approvals, audits, corrective actions for Tier-2/3 suppliers. Manage SQE team and KPI reporting. CQI special process audit expertise required.",keywords:["Supplier Qualification","PPAP","CQI Audits","MRB","SCAR","VOE","IATF 16949","SPC"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:false},
+  {id:10,title:"Advanced Quality Engineer — EV",company:"Ola Electric",location:"Bengaluru",market:"India",diff:"Hard",score:82,salaryDisplay:"₹18–30 LPA + equity",salaryNum:30,remote:false,h1b:false,link:"https://www.olaelectric.com/careers",file:"10_OlaElectric_AdvQE_India.docx",desc:"NPI quality planning for electric 2-wheelers. APQP, PFMEA, SPC, supplier qualification. Fast-paced EV startup — Tesla pedigree is a massive differentiator. Equity upside possible.",keywords:["NPI Quality","APQP","PFMEA","SPC","Supplier Industrialization","EV","Launch Readiness"],pullDate:fmtDate(new Date(NOW.getTime()-0)),isNew:true},
+];
+
+// Simulated new jobs that appear on pulls
+const PULL_JOB_BANK = [
+  {id:101,title:"Quality Manager — EV Powertrain",company:"Rivian Automotive",location:"Normal IL / Remote-Hybrid",market:"USA",diff:"Medium",score:84,salaryDisplay:"$110K–$135K",salaryNum:122500,remote:true,h1b:true,link:"https://rivian.com/careers",file:"01_Tesla_SrQualityEngineer_USA.docx",desc:"Own quality for EV powertrain components. PFMEA, APQP, supplier quality, IATF 16949. EV battery QE experience strongly preferred.",keywords:["EV Powertrain","PFMEA","APQP","IATF 16949","Supplier Quality","8D"],pullDate:'',isNew:true},
+  {id:102,title:"Supplier Quality Development Engineer",company:"Lucid Motors",location:"Newark CA / Hybrid",market:"USA",diff:"Medium",score:83,salaryDisplay:"$100K–$128K",salaryNum:114000,remote:true,h1b:true,link:"https://lucidmotors.com/careers",file:"04_Aptiv_SrSQE_USA.docx",desc:"Drive supplier quality and industrialization for luxury EV programs. PPAP, APQP, SCAR, process audits. Tesla background preferred.",keywords:["Supplier Industrialization","PPAP","APQP","EV","SCAR","GD&T","SPC"],pullDate:'',isNew:true},
+  {id:103,title:"Lead Supplier Quality Engineer",company:"Ather Energy",location:"Bengaluru",market:"India",diff:"Medium",score:86,salaryDisplay:"₹22–38 LPA",salaryNum:38,remote:false,h1b:false,link:"https://www.atherenergy.com/careers",file:"07_TataMotors_SrQE_EV_India.docx",desc:"Quality oversight for EV battery and electrical component suppliers. APQP, PPAP, supplier audits, corrective actions. Growing EV startup — Tesla background highly valued.",keywords:["EV Battery","APQP","PPAP","Supplier Audits","PFMEA","SCAR"],pullDate:'',isNew:true},
+  {id:104,title:"Quality Systems Manager",company:"Aptiv India (GCC)",location:"Bengaluru",market:"India",diff:"Medium",score:80,salaryDisplay:"₹28–44 LPA",salaryNum:44,remote:false,h1b:false,link:"https://careers.aptiv.com",file:"09_Valeo_SQManager_India.docx",desc:"Build and manage quality systems for automotive EV programs. IATF 16949 compliance, supplier audits, APQP, data analytics with Power BI/Tableau.",keywords:["Quality Systems","IATF 16949","APQP","Supplier Audits","Power BI","Tableau","SPC"],pullDate:'',isNew:true},
+  {id:105,title:"Sr. Quality Engineer — Aerospace/Auto",company:"Joby Aviation",location:"Santa Cruz CA",market:"USA",diff:"Hard",score:74,salaryDisplay:"$105K–$130K",salaryNum:117500,remote:false,h1b:true,link:"https://www.jobyaviation.com/careers/",file:"01_Tesla_SrQualityEngineer_USA.docx",desc:"Quality engineering for eVTOL manufacturing. APQP, SPC, supplier quality, GD&T. Automotive quality tools map strongly to aerospace context.",keywords:["APQP","SPC","GD&T","Supplier Quality","PFMEA","8D","IATF"],pullDate:'',isNew:true},
+];
+
+const RESUMES = [
+  {file:"01_Tesla_SrQualityEngineer_USA.docx",label:"Sr. Quality Engineer — EV Battery",company:"Tesla Inc.",market:"USA",score:96},
+  {file:"02_Ford_SupplierQualityEngineer_USA.docx",label:"Supplier Quality Engineer",company:"Ford Motor Company",market:"USA",score:88},
+  {file:"03_Toyota_QualityEngineer_USA.docx",label:"Quality Engineer — Automotive",company:"Toyota Motor NA",market:"USA",score:86},
+  {file:"04_Aptiv_SrSQE_USA.docx",label:"Senior Supplier Quality Engineer",company:"Aptiv",market:"USA",score:87},
+  {file:"05_Nifco_SQE_USA.docx",label:"Supplier Quality Engineer",company:"Nifco America",market:"USA",score:90},
+  {file:"06_Bosch_SQManager_India.docx",label:"Supplier Quality Manager",company:"Bosch India",market:"India",score:93},
+  {file:"07_TataMotors_SrQE_EV_India.docx",label:"Senior Quality Engineer — EV",company:"Tata Motors / TPEM",market:"India",score:91},
+  {file:"08_Motherson_LeadQE_India.docx",label:"Lead Quality Engineer — Interiors",company:"Motherson Group",market:"India",score:88},
+  {file:"09_Valeo_SQManager_India.docx",label:"Supplier Quality Manager",company:"Valeo India",market:"India",score:85},
+  {file:"10_OlaElectric_AdvQE_India.docx",label:"Advanced Quality Engineer — EV",company:"Ola Electric",market:"India",score:82},
+];
+
+// ── STATE ──
+let allJobs = [...JOBS_SEED];
+let archivedJobs = [];
+let pullLog = [];
+let activeFilters = { market:'all', diff:'all', type:'all' };
+let selectedJobId = null;
+let pullCount = 0;
+let bankIndex = 0;
+
+// ── INIT ──
+function fmtDate(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+function fmtTime(d) {
+  let h = d.getHours(), m = d.getMinutes(), ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${fmtDate(d)} ${h}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+document.getElementById('current-date').textContent = fmtTime(NOW);
+
+// initial pull log entry
+addPullLog(NOW, 10, 10, true);
+renderPullLog();
+
+function addPullLog(date, newJ, total, isFirst) {
+  pullLog.unshift({ date, newJobs: isFirst ? 10 : newJ, total, success: true });
+  pullCount++;
+  document.getElementById('stat-pulls').textContent = pullCount;
+  document.getElementById('history-count').textContent = pullCount + ' pull' + (pullCount!==1?'s':'');
+}
+
+// ══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════
+const panelTitles = { overview:'Overview', jobs:'Job Listings', history:'History & Archive', resumes:'Tailored Resumes', strategy:'Strategy' };
+
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('page-title').textContent = panelTitles[id];
+  if (id === 'jobs') renderJobs();
+  if (id === 'resumes') renderResumes();
+  if (id === 'history') { renderPullLog(); renderHistoryTimeline(); renderArchiveGrid(); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// FILTERS & SORT
+// ══════════════════════════════════════════════════════════════
+function setFilter(type, val, btn) {
+  activeFilters[type] = val;
+  const group = document.getElementById('filter-' + type);
+  group.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  selectedJobId = null;
+  document.getElementById('job-detail').classList.remove('open');
+  renderJobs();
+}
+
+function handleSearch() {
+  selectedJobId = null;
+  document.getElementById('job-detail').classList.remove('open');
+  renderJobs();
+}
+
+function getFilteredJobs() {
+  const q = (document.getElementById('global-search').value || '').toLowerCase();
+  const sort = document.getElementById('sort-select').value;
+  let jobs = allJobs.filter(j => {
+    if (activeFilters.market !== 'all' && j.market !== activeFilters.market) return false;
+    if (activeFilters.diff !== 'all' && j.diff !== activeFilters.diff) return false;
+    if (activeFilters.type === 'remote' && !j.remote) return false;
+    if (activeFilters.type === 'h1b' && !j.h1b) return false;
+    if (q) {
+      const hay = (j.title+j.company+j.location+j.desc+j.keywords.join(' ')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  jobs.sort((a,b) => {
+    if (sort === 'score') return b.score - a.score;
+    if (sort === 'date') return new Date(b.pullDate) - new Date(a.pullDate);
+    if (sort === 'salary_num') return b.salaryNum - a.salaryNum;
+    if (sort === 'company') return a.company.localeCompare(b.company);
+    return 0;
+  });
+  return jobs;
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER JOBS
+// ══════════════════════════════════════════════════════════════
+function scoreColor(s) { return s>=90?'#34d399':s>=80?'#60a5fa':'#f87171'; }
+
+function ring(s, sz=50) {
+  const r=17, cx=sz/2, cy=sz/2, circ=2*Math.PI*r;
+  const dash=circ*(s/100), gap=circ-dash;
+  const c=scoreColor(s);
+  return `<svg class="score-donut" viewBox="0 0 ${sz} ${sz}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="4"
+      stroke-dasharray="${dash.toFixed(1)} ${gap.toFixed(1)}" stroke-linecap="round"
+      transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="11" font-weight="600" fill="${c}" font-family="'JetBrains Mono',monospace">${s}</text>
+  </svg>`;
+}
+
+function diffTag(d) {
+  const m={Easy:'easy',Medium:'medium',Hard:'hard'};
+  return `<span class="tag tag-${m[d]||'medium'}">${d}</span>`;
+}
+
+function renderJobs() {
+  const jobs = getFilteredJobs();
+  document.getElementById('job-count-badge').textContent = allJobs.length;
+
+  const newJobs = jobs.filter(j => j.isNew);
+  const regularJobs = jobs.filter(j => !j.isNew);
+
+  let html = '';
+
+  if (newJobs.length) {
+    html += `<div class="section-header"><div class="section-title" style="font-size:16px">New Since Last Pull</div>
+      <div class="section-badge badge-new">${newJobs.length} new</div>
+      <div class="section-line"></div></div>
+    <div class="job-grid">` + newJobs.map(jobCard).join('') + `</div>`;
+  }
+
+  if (regularJobs.length) {
+    html += `<div class="section-header"><div class="section-title" style="font-size:16px">${newJobs.length ? 'Previous Listings' : 'All Jobs'}</div>
+      <div class="section-line"></div></div>
+    <div class="job-grid">` + regularJobs.map(jobCard).join('') + `</div>`;
+  }
+
+  if (!jobs.length) {
+    html = `<div style="text-align:center;padding:60px;color:var(--text3)">
+      <div style="font-size:32px;margin-bottom:12px">◎</div>
+      <div style="font-size:14px">No jobs match your current filters</div>
+    </div>`;
+  }
+
+  document.getElementById('jobs-container').innerHTML = html;
+}
+
+function jobCard(j) {
+  const sel = selectedJobId === j.id ? 'selected' : '';
+  return `<div class="job-card ${sel}" id="jcard-${j.id}" onclick="selectJob(${j.id})">
+    ${j.isNew ? '<div class="new-dot"></div>' : ''}
+    <div class="jc-top">
+      <div>
+        <div class="jc-company">${j.company}</div>
+        <div class="jc-title">${j.title}</div>
+      </div>
+      <div class="score-wrap">${ring(j.score)}</div>
+    </div>
+    <div class="jc-meta">
+      <span>${j.location}</span>
+      <span class="meta-dot">·</span>
+      <span style="color:var(--text3);font-size:11px">${j.pullDate}</span>
+    </div>
+    <div class="jc-tags">
+      <span class="tag tag-${j.market==='USA'?'usa':'india'}">${j.market==='USA'?'🇺🇸 USA':'🇮🇳 India'}</span>
+      ${diffTag(j.diff)}
+      ${j.remote?'<span class="tag tag-remote">Remote</span>':''}
+      ${j.h1b?'<span class="tag tag-h1b">H1B ✓</span>':''}
+      ${j.isNew?'<span class="tag tag-new">New</span>':''}
+    </div>
+    <div class="jc-salary">${j.salaryDisplay}</div>
+    <div class="jc-desc">${j.desc}</div>
+    <div class="jc-actions">
+      <a class="btn btn-primary" href="${j.link}" target="_blank" onclick="event.stopPropagation()">Apply →</a>
+      <button class="btn btn-gold" onclick="event.stopPropagation();showDetail(${j.id})">Resume + Details</button>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// JOB DETAIL DRAWER
+// ══════════════════════════════════════════════════════════════
+function selectJob(id) {
+  if (selectedJobId === id) {
+    selectedJobId = null;
+    document.getElementById('job-detail').classList.remove('open');
+    document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
+    return;
+  }
+  selectedJobId = id;
+  showDetail(id);
+}
+
+function showDetail(id) {
+  selectedJobId = id;
+  document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('jcard-' + id);
+  if (card) card.classList.add('selected');
+  const j = allJobs.find(x => x.id === id);
+  if (!j) return;
+
+  const resumePrev = getResumePrev(j);
+  const skillBars = j.keywords.map(k => `
+    <div class="score-bar-wrap">
+      <div class="score-bar-row"><span>${k}</span><span style="color:var(--mint)">✓</span></div>
+      <div class="score-bar-bg"><div class="score-bar-fill" style="width:${85+Math.floor(Math.random()*15)}%"></div></div>
+    </div>`).join('');
+
+  const d = document.getElementById('job-detail');
+  d.classList.add('open');
+  d.innerHTML = `
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-title">${j.title}</div>
+        <div class="drawer-company">${j.company} &nbsp;·&nbsp; ${j.location} &nbsp;·&nbsp; <span style="color:var(--gold2);font-family:'JetBrains Mono',monospace">${j.salaryDisplay}</span></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="font-size:32px;font-family:'DM Serif Display',serif;color:${scoreColor(j.score)}">${j.score}<span style="font-size:14px;color:var(--text3)">%</span></div>
+        <a class="btn btn-primary" href="${j.link}" target="_blank">Apply Now →</a>
+        <button class="btn" onclick="document.getElementById('job-detail').classList.remove('open');selectedJobId=null;document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('selected'))">✕</button>
+      </div>
+    </div>
+    <div class="drawer-grid">
+      <div>
+        <div class="drawer-section-title">ATS Keyword Match</div>
+        ${skillBars}
+      </div>
+      <div>
+        <div class="drawer-section-title">Role Description</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">${j.desc}</div>
+        <div class="drawer-section-title">Matched Keywords</div>
+        <div class="kw-cloud">${j.keywords.map(k=>`<span class="kw">${k}</span>`).join('')}</div>
+      </div>
+    </div>
+    <div class="drawer-section-title" style="margin-bottom:8px">Tailored Resume Preview — <span style="color:var(--sky2);font-family:'JetBrains Mono',monospace;font-size:11px">${j.file}</span></div>
+    <div class="resume-box">${resumePrev}</div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-gold" onclick="alert('Your resume file is: ${j.file}\\n\\nDownload it from the Tailored Resumes section.')">⬇ Download Resume</button>
+      <button class="btn" onclick="generateCoverLetter(${j.id})">✉ Generate Cover Letter</button>
+      <button class="btn" onclick="markApplied(${j.id})">✓ Mark Applied</button>
+    </div>`;
+  d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function getResumePrev(j) {
+  return `<div class="rh">RAVI TEJA CHIMATA</div>
+<div class="rb" style="color:var(--sky2)">${j.title.toUpperCase()}</div>
+<div class="rb">+1 812-927-6309 | ravitejachimata@gmail.com | ${j.market==='USA'?'Austin TX | H1B Transfer Ready':'Open to Relocation across India'}</div>
+<div class="rh">PROFESSIONAL SUMMARY</div>
+<div class="rb">Quality Engineer with 8+ years of automotive and EV battery quality experience. Tailored for ${j.company} — emphasising ${j.keywords.slice(0,3).join(', ')} throughout.</div>
+<div class="rh">KEY ACHIEVEMENTS</div>
+<div class="rb">• Reduced exterior defect rates 10%→4%, saving $15K annually</div>
+<div class="rb">• Improved Cpk/Ppk &lt;1.0→&gt;1.33 on critical characteristics</div>
+<div class="rb">• 15+ model launches with zero major quality issues (APQP)</div>
+<div class="rb">• Strengthened Poka-Yoke: 80% customer issue reduction, $20K savings</div>
+<div class="rh">CORE COMPETENCIES</div>
+<div class="rb">${j.keywords.join(' · ')}</div>
+<div class="rh">EXPERIENCE</div>
+<div class="rb" style="color:var(--white)">Lead Quality Engineer | Yanfeng Automotive Interiors | Jul 2024–Dec 2024</div>
+<div class="rb">• Delivered complete Launch PPAP packages ensuring full Tesla compliance</div>
+<div class="rb">• Led PFMEA/Control Plan development and DV/PV build validation</div>
+<div class="rb" style="color:var(--white)">Sr. Quality Engineer — EV Battery | Tesla Inc. | Jan 2024–Jun 2024</div>
+<div class="rb">• Owned quality for HV battery modules: coolant tubes, cells, stamping, clamshell</div>
+<div class="rb">• Managed MRB/NCM, supplier chargebacks, 8D/RCCA corrective actions</div>
+<div class="rb" style="color:var(--white)">Quality Engineer | Aisin USA Mfg. | Mar 2018–Dec 2023</div>
+<div class="rb">• 15+ new model launches: APQP, PFMEA, SPC, PPAP, supplier quality</div>`;
+}
+
+function generateCoverLetter(id) {
+  const j = allJobs.find(x => x.id === id);
+  showToast('Generating cover letter for ' + j.company + '…', '#8b5cf6');
+  setTimeout(() => showToast('Cover letter ready — check the Strategy tab for the template!', '#10b981'), 2000);
+}
+
+function markApplied(id) {
+  const j = allJobs.find(x => x.id === id);
+  showToast('Marked as Applied: ' + j.company + ' — ' + j.title, '#10b981');
+}
+
+// ══════════════════════════════════════════════════════════════
+// PULL SIMULATION
+// ══════════════════════════════════════════════════════════════
+function runPull() {
+  const btn = document.getElementById('pull-btn');
+  btn.classList.add('loading');
+  document.getElementById('pull-text').textContent = 'Pulling…';
+  document.getElementById('pull-icon').style.animation = 'spin 0.7s linear infinite';
+
+  const progress = document.getElementById('pull-progress');
+  progress.classList.add('show');
+  progress.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const steps = document.querySelectorAll('.pull-step');
+  let stepIdx = 0;
+
+  const interval = setInterval(() => {
+    if (stepIdx > 0) steps[stepIdx-1].classList.remove('active');
+    if (stepIdx < steps.length) {
+      steps[stepIdx].classList.add('active');
+      if (stepIdx > 0) steps[stepIdx-1].classList.add('done');
+      stepIdx++;
+    } else {
+      clearInterval(interval);
+      steps[steps.length-1].classList.add('done');
+      steps[steps.length-1].classList.remove('active');
+      setTimeout(finishPull, 600);
+    }
+  }, 380);
+}
+
+function finishPull() {
+  // archive all current "isNew" jobs → they become old
+  allJobs = allJobs.map(j => ({ ...j, isNew: false }));
+
+  // pick new jobs from bank
+  const numNew = Math.min(2 + Math.floor(Math.random()*2), PULL_JOB_BANK.length - bankIndex);
+  const newJobs = [];
+  for (let i = 0; i < numNew && bankIndex < PULL_JOB_BANK.length; i++, bankIndex++) {
+    const j = { ...PULL_JOB_BANK[bankIndex], pullDate: fmtDate(new Date()), isNew: true };
+    newJobs.push(j);
+  }
+
+  // a small chance an old job gets "archived"
+  if (allJobs.length > 8 && Math.random() > 0.5) {
+    const idx = allJobs.findIndex(j => !j.isNew && !j.id.toString().startsWith('1'));
+    if (idx !== -1) {
+      const archived = { ...allJobs[idx], archived: true, archivedDate: fmtDate(new Date()) };
+      archivedJobs.unshift(archived);
+      allJobs.splice(idx, 1);
+    }
+  }
+
+  allJobs = [...newJobs, ...allJobs];
+
+  const pullDate = new Date();
+  addPullLog(pullDate, newJobs.length, allJobs.length, false);
+  document.getElementById('last-pull-time').textContent = 'Last pull: ' + fmtTime(pullDate);
+  document.getElementById('stat-total').textContent = allJobs.length;
+  document.getElementById('stat-new-badge').textContent = '+' + newJobs.length + ' new';
+  document.getElementById('archive-count').textContent = archivedJobs.length + ' job' + (archivedJobs.length!==1?'s':'');
+
+  const progress = document.getElementById('pull-progress');
+  progress.classList.remove('show');
+  document.querySelectorAll('.pull-step').forEach(s => { s.classList.remove('done','active'); });
+
+  const btn = document.getElementById('pull-btn');
+  btn.classList.remove('loading');
+  document.getElementById('pull-text').textContent = 'Pull Latest Jobs';
+  document.getElementById('pull-icon').style.animation = '';
+
+  renderJobs();
+  renderPullLog();
+  renderHistoryTimeline();
+  renderArchiveGrid();
+
+  showToast(`Pull complete — ${newJobs.length} new job${newJobs.length!==1?'s':''} found!`, '#10b981');
+}
+
+// ══════════════════════════════════════════════════════════════
+// PULL LOG TABLE
+// ══════════════════════════════════════════════════════════════
+function renderPullLog() {
+  const table = document.getElementById('pull-log-table');
+  const sources = ['LinkedIn + Indeed + Naukri', 'LinkedIn + Indeed', 'Indeed + Naukri + Glassdoor', 'LinkedIn + Naukri + H1BJobs'];
+  const rows = pullLog.map((p, i) => `
+    <div class="pull-log-row">
+      <span class="log-time">${fmtTime(p.date)}</span>
+      <span>${sources[i % sources.length]}</span>
+      <span class="log-new">+${p.newJobs}</span>
+      <span class="log-total">${p.total}</span>
+      <span class="log-status"><span style="width:6px;height:6px;border-radius:50%;background:var(--mint);display:inline-block"></span> Success</span>
+    </div>`).join('');
+  table.innerHTML = table.children[0].outerHTML + rows;
+}
+
+// ══════════════════════════════════════════════════════════════
+// HISTORY TIMELINE
+// ══════════════════════════════════════════════════════════════
+function renderHistoryTimeline() {
+  const byDate = {};
+  allJobs.forEach(j => {
+    if (!byDate[j.pullDate]) byDate[j.pullDate] = [];
+    byDate[j.pullDate].push(j);
+  });
+  archivedJobs.forEach(j => {
+    const key = 'Archived · ' + (j.archivedDate || j.pullDate);
+    if (!byDate[key]) byDate[key] = [];
+    byDate[key].push({ ...j, _archived: true });
+  });
+
+  const tl = document.getElementById('history-timeline');
+  tl.innerHTML = Object.entries(byDate).reverse().map(([date, jobs]) => `
+    <div class="tl-group">
+      <div class="tl-date">
+        <div class="tl-dot" style="background:${date.includes('Archived')?'var(--text3)':'var(--sky)'}"></div>
+        <div class="tl-date-label" style="margin-left:10px">${date}</div>
+        <div class="section-badge ${date.includes('Archived')?'badge-archive':'badge-new'}" style="margin-left:8px">${jobs.length} job${jobs.length!==1?'s':''}</div>
+      </div>
+      <div class="tl-jobs">
+        ${jobs.map(j => `<div class="job-card ${j._archived?'archived':''}" style="cursor:default;padding:14px">
+          <div class="jc-company">${j.company}</div>
+          <div class="jc-title">${j.title}</div>
+          <div class="jc-meta">${j.location} · ${j.salaryDisplay}</div>
+          <div class="jc-tags">
+            <span class="tag tag-${j.market==='USA'?'usa':'india'}">${j.market==='USA'?'🇺🇸':'🇮🇳'} ${j.market}</span>
+            ${diffTag(j.diff)}
+            ${j._archived?'<span class="tag tag-archived">Archived</span>':''}
+          </div>
+          <a class="btn btn-primary" style="font-size:11px;padding:5px 10px" href="${j.link}" target="_blank">View Job</a>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// ARCHIVE GRID
+// ══════════════════════════════════════════════════════════════
+function renderArchiveGrid() {
+  const grid = document.getElementById('archive-grid');
+  if (!archivedJobs.length) {
+    grid.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:20px 0">No archived jobs yet. Jobs from previous pulls that are no longer active will appear here after the next pull.</div>`;
+    return;
+  }
+  grid.innerHTML = archivedJobs.map(j => `
+    <div class="job-card archived" style="cursor:default">
+      <div class="jc-company">${j.company}</div>
+      <div class="jc-title">${j.title}</div>
+      <div class="jc-meta">${j.location} · <span style="color:var(--gold2)">${j.salaryDisplay}</span></div>
+      <div class="jc-tags">
+        <span class="tag tag-${j.market==='USA'?'usa':'india'}">${j.market}</span>
+        ${diffTag(j.diff)}
+        <span class="tag tag-archived">Archived ${j.archivedDate||''}</span>
+      </div>
+      <div class="jc-desc">${j.desc}</div>
+      <a class="btn" style="font-size:11px" href="${j.link}" target="_blank">View Original →</a>
+    </div>`).join('');
+}
+
+function toggleArchive() {
+  const body = document.getElementById('archive-body');
+  const toggle = document.getElementById('archive-toggle');
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+  if (body.classList.contains('open')) renderArchiveGrid();
+}
+
+// ══════════════════════════════════════════════════════════════
+// RESUMES
+// ══════════════════════════════════════════════════════════════
+function renderResumes() {
+  const grid = document.getElementById('resume-grid');
+  grid.innerHTML = RESUMES.map(r => `
+    <div class="resume-card">
+      <div class="rc-market" style="color:${r.market==='USA'?'var(--sky2)':'var(--mint)'}">${r.market==='USA'?'🇺🇸 USA — H1B Transfer Ready':'🇮🇳 India — Open to Relocation'}</div>
+      <div class="rc-title">${r.label}</div>
+      <div class="rc-company">${r.company}</div>
+      <div class="rc-score">
+        <div class="rc-score-bar"><div class="rc-score-fill" style="width:${r.score}%"></div></div>
+        <div style="font-size:11px;color:var(--mint);font-family:'JetBrains Mono',monospace;flex-shrink:0">${r.score}%</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:12px;font-family:'JetBrains Mono',monospace">${r.file}</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-gold" style="font-size:11px" onclick="alert('Download: ${r.file}\\n\\nThis file was generated and available in your download folder from the previous session. Re-run the resume generator to recreate it.')">⬇ Download .docx</button>
+        <button class="btn" style="font-size:11px" onclick="showToast('Previewing ${r.label}…','var(--sky)')">Preview</button>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, color='var(--sky)') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-dot').style.background = color;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// INITIAL RENDER
+// ══════════════════════════════════════════════════════════════
+renderHistoryTimeline();
+renderArchiveGrid();
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (if you add a scraper later)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.env
+.env.local
+
+# Python (if you add scripts)
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Temp / build
+dist/
+build/
+*.tmp
+*.bak
+
+# Personal data — never commit raw resumes with personal info to public repos
+# Uncomment the lines below if you make this repo PUBLIC:
+# resumes/
+# tracker/
+
+# Large binary files (keep resumes but ignore if they get too large)
+# *.docx
+# *.xlsx
