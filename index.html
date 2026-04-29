@@ -1787,7 +1787,7 @@ function renderJobs() {
 
 function jobCard(j) {
   const sel = selectedJobId === j.id ? 'selected' : '';
-  return `<div class="job-card ${sel}" id="jcard-${j.id}" onclick="selectJob(${j.id})">
+  return `<div class="job-card ${sel}" id="jcard-${encodeId(j.id)}" onclick="selectJob('${j.id}')">
     ${j.isNew ? '<div class="new-dot"></div>' : ''}
     <div class="jc-top">
       <div>
@@ -1810,11 +1810,11 @@ function jobCard(j) {
       ${j.isNew?'<span class="tag tag-new">New</span>':''}
       ${j.source&&j.source.includes('real')?'<span class="tag" style="background:rgba(16,185,129,0.15);color:#34d399;font-size:9px">Live</span>':''}
     </div>
-    <div class="jc-salary">${j.salaryDisplay}</div>
+    <div class="jc-salary">${j.salaryDisplay||'Salary not listed'}</div>
     <div class="jc-desc">${j.desc || j.description || ''}</div>
     <div class="jc-actions">
-      <a class="btn btn-primary" href="${j.link}" target="_blank" onclick="event.stopPropagation()">Apply →</a>
-      <button class="btn btn-gold" onclick="event.stopPropagation();showDetail(${j.id})">Resume + Details</button>
+      <a class="btn btn-primary" href="${j.jobUrl||j.link||'#'}" target="_blank" onclick="event.stopPropagation()">Apply →</a>
+      <button class="btn btn-gold" onclick="event.stopPropagation();showDetail('${j.id}')">Resume + Details</button>
     </div>
   </div>`;
 }
@@ -1822,6 +1822,8 @@ function jobCard(j) {
 // ══════════════════════════════════════════════════════════════
 // JOB DETAIL DRAWER
 // ══════════════════════════════════════════════════════════════
+function encodeId(id) { return String(id).replace(/[^a-zA-Z0-9_-]/g,'_'); }
+
 function selectJob(id) {
   if (selectedJobId === id) {
     selectedJobId = null;
@@ -1836,9 +1838,9 @@ function selectJob(id) {
 function showDetail(id) {
   selectedJobId = id;
   document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
-  const card = document.getElementById('jcard-' + id);
+  const card = document.getElementById('jcard-' + encodeId(id));
   if (card) card.classList.add('selected');
-  const j = allJobs.find(x => x.id === id);
+  const j = allJobs.find(x => String(x.id) === String(id));
   if (!j) return;
 
   const resumePrev = getResumePrev(j);
@@ -1858,7 +1860,7 @@ function showDetail(id) {
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <div style="font-size:32px;font-family:'DM Serif Display',serif;color:${scoreColor(j.score)}">${j.score}<span style="font-size:14px;color:var(--text3)">%</span></div>
-        <a class="btn btn-primary" href="${j.link}" target="_blank">Apply Now →</a>
+        <a class="btn btn-primary" href="${j.jobUrl||j.link||'#'}" target="_blank">Apply Now →</a>
         <button class="btn" onclick="document.getElementById('job-detail').classList.remove('open');selectedJobId=null;document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('selected'))">✕</button>
       </div>
     </div>
@@ -1874,12 +1876,12 @@ function showDetail(id) {
         <div class="kw-cloud">${(Array.isArray(j.matchedKeywords)?j.matchedKeywords:(j.keywords||[])).map(k=>`<span class="kw">${k}</span>`).join('')}</div>
       </div>
     </div>
-    <div class="drawer-section-title" style="margin-bottom:8px">Tailored Resume Preview — <span style="color:var(--sky2);font-family:'JetBrains Mono',monospace;font-size:11px">${j.file}</span></div>
+    <div class="drawer-section-title" style="margin-bottom:8px">Best-Match Resume — <span style="color:var(--sky2);font-family:'JetBrains Mono',monospace;font-size:11px">${getBestResume(j)}</span></div>
     <div class="resume-box">${resumePrev}</div>
     <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-gold" onclick="alert('Your resume file is: ${j.file}\\n\\nDownload it from the Tailored Resumes section.')">⬇ Download Resume</button>
-      <button class="btn" onclick="generateCoverLetter(${j.id})">✉ Generate Cover Letter</button>
-      <button class="btn" onclick="markApplied(${j.id})">✓ Mark Applied</button>
+      <button class="btn btn-gold" onclick="alert('Best resume for this role:\\n' + getBestResume(j) + '\\n\\nDownload from the Tailored Resumes tab.')">⬇ Best Resume</button>
+      <button class="btn" onclick="generateCoverLetter('${j.id}')">✉ Generate Cover Letter</button>
+      <button class="btn" onclick="markApplied('${j.id}')">✓ Mark Applied</button>
     </div>`;
   d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -1908,14 +1910,31 @@ function getResumePrev(j) {
 <div class="rb">• 15+ new model launches: APQP, PFMEA, SPC, PPAP, supplier quality</div>`;
 }
 
+function getBestResume(j) {
+  // Pick the best pre-made resume based on job category and market
+  const cat = (j.category||'').toLowerCase();
+  const mkt = j.market;
+  if (mkt === 'India') {
+    if (cat.includes('supplier')) return '09_Valeo_SQManager_India.docx';
+    if (cat.includes('lead'))     return '08_Motherson_LeadQE_India.docx';
+    if (cat.includes('launch') || cat.includes('assistant')) return '07_TataMotors_SrQE_EV_India.docx';
+    return '06_Bosch_SQManager_India.docx';
+  }
+  if (cat.includes('supplier')) return '02_Ford_SupplierQualityEngineer_USA.docx';
+  if (cat.includes('lead'))     return '04_Aptiv_SrSQE_USA.docx';
+  if (cat.includes('launch'))   return '03_Toyota_QualityEngineer_USA.docx';
+  if (cat.includes('assistant'))return '05_Nifco_SQE_USA.docx';
+  return '01_Tesla_SrQualityEngineer_USA.docx';
+}
+
 function generateCoverLetter(id) {
-  const j = allJobs.find(x => x.id === id);
+  const j = allJobs.find(x => String(x.id) === String(id));
   showToast('Generating cover letter for ' + j.company + '…', '#8b5cf6');
   setTimeout(() => showToast('Cover letter ready — check the Strategy tab for the template!', '#10b981'), 2000);
 }
 
 function markApplied(id) {
-  const j = allJobs.find(x => x.id === id);
+  const j = allJobs.find(x => String(x.id) === String(id));
   showToast('Marked as Applied: ' + j.company + ' — ' + j.title, '#10b981');
 }
 
