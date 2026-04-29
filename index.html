@@ -2466,7 +2466,7 @@ function setState(type, state) {
 
 // ── CLAUDE API CALL ───────────────────────────────────────────────────────────
 async function callClaude(systemPrompt, userPrompt) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('https://ravi-job-proxy.ravitejachimata.workers.dev', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
