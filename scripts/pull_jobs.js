@@ -304,7 +304,7 @@ async function main() {
     total++;
     process.stdout.write(`  [${String(total).padStart(2)}] ${s.keyword.substring(0,44).padEnd(44)} ... `);
     try {
-      const items = await apifyRun(INDEED_ACTOR,{country:'us',keyword:s.keyword,location:s.location,maxResults:25,datePosted:'last14days'},90);
+      const items = await apifyRun(INDEED_ACTOR,{country:'us',title:s.keyword,location:s.location,limit:25,datePosted:'14'},90);
       const proc  = procIndeed(items,'USA',s.keyword,s.location);
       allRaw.push(...proc);
       process.stdout.write(`${(items||[]).length} raw → ${proc.length} matched\n`);
@@ -318,7 +318,7 @@ async function main() {
     total++;
     process.stdout.write(`  [${String(total).padStart(2)}] ${s.keyword.substring(0,44).padEnd(44)} ... `);
     try {
-      const items = await apifyRun(INDEED_ACTOR,{country:'in',keyword:s.keyword,location:s.location,maxResults:25,datePosted:'last14days'},90);
+      const items = await apifyRun(INDEED_ACTOR,{country:'in',title:s.keyword,location:s.location,limit:25,datePosted:'14'},90);
       const proc  = procIndeed(items,'India',s.keyword,s.location);
       allRaw.push(...proc);
       process.stdout.write(`${(items||[]).length} raw → ${proc.length} matched\n`);
