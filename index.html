@@ -1161,6 +1161,179 @@
     .stat-row { grid-template-columns: repeat(2, 1fr); }
     .pull-log-header, .pull-log-row { grid-template-columns: 1fr 1fr; }
   }
+
+  /* ── PHASE 2: AI GENERATOR MODAL ─────────────────────────────── */
+  .ai-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px); z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  .ai-modal {
+    background: var(--navy2); border: 1px solid var(--border2);
+    border-radius: 16px; width: 100%; max-width: 780px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    animation: slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes slideUp { from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  .ai-modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+
+  .ai-modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; color: var(--white);
+  }
+
+  .ai-modal-subtitle {
+    font-size: 12px; color: var(--text3); margin-top: 3px;
+  }
+
+  .ai-modal-body { padding: 20px 24px; }
+  .ai-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+  }
+
+  /* Tabs inside modal */
+  .ai-tabs { display: flex; gap: 4px; margin-bottom: 18px; }
+  .ai-tab {
+    padding: 7px 16px; border-radius: 8px; font-size: 13px;
+    font-family: 'DM Sans', sans-serif; cursor: pointer;
+    border: 1px solid var(--border2); background: transparent;
+    color: var(--text2); transition: all 0.15s;
+  }
+  .ai-tab.active { background: var(--sky); border-color: var(--sky); color: #fff; font-weight: 500; }
+  .ai-tab:hover:not(.active) { border-color: var(--sky); color: var(--sky2); }
+
+  .ai-tab-panel { display: none; }
+  .ai-tab-panel.active { display: block; }
+
+  /* AI generating animation */
+  .ai-generating {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 20px; gap: 16px;
+  }
+
+  .ai-spinner-ring {
+    width: 56px; height: 56px; position: relative;
+  }
+
+  .ai-spinner-ring svg { width: 56px; height: 56px; animation: rotate 1.4s linear infinite; }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+  .ai-spinner-ring circle {
+    fill: none; stroke-width: 3;
+    stroke-dasharray: 120; stroke-dashoffset: 80;
+    stroke: var(--sky); stroke-linecap: round;
+    animation: dash 1.4s ease-in-out infinite;
+  }
+  @keyframes dash {
+    0%   { stroke-dashoffset: 120; }
+    50%  { stroke-dashoffset: 20; }
+    100% { stroke-dashoffset: 120; }
+  }
+
+  .ai-status-text { font-size: 13px; color: var(--text2); text-align: center; }
+  .ai-status-steps { list-style: none; text-align: left; margin-top: 8px; }
+  .ai-status-step {
+    font-size: 12px; color: var(--text3); padding: 3px 0;
+    display: flex; align-items: center; gap: 8px; transition: color 0.3s;
+  }
+  .ai-status-step.done { color: var(--mint); }
+  .ai-status-step.active { color: var(--sky2); }
+  .ai-status-step-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0;
+  }
+
+  /* Generated content display */
+  .ai-content-box {
+    background: var(--navy); border: 1px solid var(--border);
+    border-radius: var(--radius2); padding: 18px;
+    font-size: 13px; line-height: 1.75; color: var(--text);
+    white-space: pre-wrap; max-height: 420px; overflow-y: auto;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .ai-content-box h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px; color: var(--white); margin-bottom: 4px; margin-top: 14px;
+  }
+  .ai-content-box h3:first-child { margin-top: 0; }
+  .ai-content-box .section-line {
+    border: none; border-bottom: 1px solid var(--border);
+    margin: 6px 0 10px; display: block;
+  }
+
+  /* Job info card in modal */
+  .ai-job-card {
+    background: var(--navy); border: 1px solid var(--border);
+    border-radius: var(--radius2); padding: 14px; margin-bottom: 16px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .ai-score-chip {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+  }
+  .ai-job-info { flex: 1; }
+  .ai-job-title { font-size: 14px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+  .ai-job-meta  { font-size: 12px; color: var(--text2); }
+
+  /* Applied tracker */
+  .applied-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(16,185,129,0.2); border: 1px solid var(--mint);
+    color: var(--mint); font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 100px; letter-spacing: 0.5px;
+  }
+
+  /* Copy button */
+  .copy-btn {
+    padding: 6px 14px; border-radius: var(--radius2);
+    border: 1px solid var(--border2); background: transparent;
+    color: var(--text2); font-size: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  }
+  .copy-btn:hover { background: var(--steel); color: var(--white); }
+  .copy-btn.copied { background: rgba(16,185,129,0.15); border-color: var(--mint); color: var(--mint); }
+
+  /* Download DOCX button */
+  .btn-download {
+    background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.5);
+    color: var(--gold2); padding: 8px 16px; border-radius: var(--radius2);
+    font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+  }
+  .btn-download:hover { background: rgba(245,158,11,0.2); transform: translateY(-1px); }
+  .btn-download:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Application tracker panel */
+  .applied-list { display: grid; gap: 10px; }
+  .applied-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .applied-item-info { flex: 1; min-width: 180px; }
+  .applied-item-title { font-size: 13px; font-weight: 500; color: var(--white); }
+  .applied-item-meta  { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .status-select {
+    background: var(--navy3); border: 1px solid var(--border2);
+    border-radius: var(--radius2); padding: 5px 8px;
+    color: var(--text); font-size: 12px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; outline: none;
+  }
+
+  /* Keyword highlight in cover letter */
+  .kw-highlight { color: var(--sky2); font-weight: 500; }
+
 </style>
 </head>
 <body>
@@ -1191,6 +1364,10 @@
     </button>
     <button class="nav-btn" onclick="switchPanel('strategy', this)">
       <span class="nav-icon">◎</span> Strategy
+    </button>
+    <button class="nav-btn" onclick="switchPanel('tracker', this)">
+      <span class="nav-icon">✓</span> Applied Jobs
+      <span style="margin-left:auto;background:rgba(16,185,129,0.2);color:#34d399;font-size:10px;padding:1px 6px;border-radius:100px;font-weight:600" id="applied-count-badge">0</span>
     </button>
   </div>
 
@@ -1431,6 +1608,24 @@
       <div class="resume-grid" id="resume-grid"></div>
     </div>
 
+    <!-- ══ APPLICATION TRACKER PANEL ══ -->
+    <div class="panel" id="panel-tracker">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div class="section-title" style="margin-bottom:4px">Applied Jobs Tracker</div>
+          <div style="font-size:12px;color:var(--text3)">Track every application — status, resume used, follow-up dates</div>
+        </div>
+        <button class="btn" onclick="exportTrackerCSV()" style="font-size:12px">⬇ Export CSV</button>
+      </div>
+      <div id="applied-list-container">
+        <div style="text-align:center;padding:60px;color:var(--text3)">
+          <div style="font-size:32px;margin-bottom:12px">📋</div>
+          <div style="font-size:14px;margin-bottom:6px">No applications tracked yet</div>
+          <div style="font-size:12px">Click "Mark Applied" on any job card to start tracking</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ══ STRATEGY PANEL ══ -->
     <div class="panel" id="panel-strategy">
 
@@ -1647,6 +1842,8 @@ function addPullLog(date, newJ, total, src) {
   }
 
   updateStatBadges();
+  // Init applied tracker badge
+  document.getElementById('applied-count-badge').textContent = appliedJobs.length;
   renderPullLog();
   renderHistoryTimeline();
   renderArchiveGrid();
@@ -1672,17 +1869,18 @@ function updateStatBadges() {
 // ══════════════════════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════════════════════
-const panelTitles = { overview:'Overview', jobs:'Job Listings', history:'History & Archive', resumes:'Tailored Resumes', strategy:'Strategy' };
+const panelTitles = { overview:'Overview', jobs:'Job Listings', history:'History & Archive', resumes:'Tailored Resumes', strategy:'Strategy', tracker:'Applied Jobs Tracker' };
 
 function switchPanel(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
-  document.getElementById('page-title').textContent = panelTitles[id];
-  if (id === 'jobs') renderJobs();
+  document.getElementById('page-title').textContent = panelTitles[id] || id;
+  if (id === 'jobs')    renderJobs();
   if (id === 'resumes') renderResumes();
   if (id === 'history') { renderPullLog(); renderHistoryTimeline(); renderArchiveGrid(); }
+  if (id === 'tracker') renderTrackerPanel();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1878,10 +2076,18 @@ function showDetail(id) {
     </div>
     <div class="drawer-section-title" style="margin-bottom:8px">Best-Match Resume — <span style="color:var(--sky2);font-family:'JetBrains Mono',monospace;font-size:11px">${getBestResume(j)}</span></div>
     <div class="resume-box">${resumePrev}</div>
-    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-gold" onclick="alert('Best resume for this role:\\n' + getBestResume(j) + '\\n\\nDownload from the Tailored Resumes tab.')">⬇ Best Resume</button>
-      <button class="btn" onclick="generateCoverLetter('${j.id}')">✉ Generate Cover Letter</button>
-      <button class="btn" onclick="markApplied('${j.id}')">✓ Mark Applied</button>
+    <div style="margin-top:16px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;margin-bottom:10px">⚡ Phase 2 — AI-Powered Actions</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-download" onclick="openAIModal('${j.id}','resume')">
+          <span>🤖</span> Generate Tailored Resume
+        </button>
+        <button class="btn-download" style="border-color:rgba(139,92,246,0.5);color:#a78bfa;background:rgba(139,92,246,0.1)" onclick="openAIModal('${j.id}','cover')">
+          <span>✉</span> Generate Cover Letter
+        </button>
+        <button class="btn" onclick="markApplied('${j.id}')">✓ Mark Applied</button>
+        <a class="btn btn-primary" href="${j.jobUrl||j.link||'#'}" target="_blank" style="text-decoration:none">Apply Now →</a>
+      </div>
     </div>`;
   d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -1927,16 +2133,527 @@ function getBestResume(j) {
   return '01_Tesla_SrQualityEngineer_USA.docx';
 }
 
-function generateCoverLetter(id) {
-  const j = allJobs.find(x => String(x.id) === String(id));
-  showToast('Generating cover letter for ' + j.company + '…', '#8b5cf6');
-  setTimeout(() => showToast('Cover letter ready — check the Strategy tab for the template!', '#10b981'), 2000);
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 2 — AI RESUME + COVER LETTER GENERATOR
+// ══════════════════════════════════════════════════════════════════════
+
+// Ravi's base resume data (used as context for Claude API)
+const BASE_RESUME = `RAVI TEJA CHIMATA
++1 812-927-6309 | ravitejachimata@gmail.com | Austin, TX | linkedin.com/in/ravi-teja-c-814478b1
+
+EXPERIENCE SUMMARY
+Quality Engineer with 8+ years of automotive and EV battery quality experience at Tesla Inc., Yanfeng Automotive Interiors, and Aisin USA Mfg.
+
+WORK HISTORY
+
+Lead Quality Engineer | Yanfeng Automotive Interiors, Hayward CA | Jul 2024 – Dec 2024
+• Delivered complete Launch PPAP packages ensuring full Tesla customer compliance
+• Conducted Cp/Cpk capability studies; validated DV/PV builds against customer specs
+• Developed PFMEA, Characteristic Matrices, Control Plans, and LPA deployment
+• Owned launch-phase 8D corrective actions across Tesla, internal mfg, and supplier base
+• Managed supplier sort initiation, SCAR VOE closure, and aging MRB KPI tracking
+
+Sr. Quality Engineer — EV Battery | Tesla Inc., Sparks NV | Jan 2024 – Jun 2024
+• Owned incoming, in-process, and outgoing quality for EV battery modules (HV battery, coolant tubes, stamping, injection-molded clamshell components)
+• Led PFMEA, Control Plans, and inspection strategies for battery subsystems
+• Managed MRB/NCM: disposition of non-conforming material and supplier chargebacks
+• Drove 8D/RCCA for high-impact quality issues, reducing repeat defects and improving FPY
+• Partnered with Production, Engineering, Supplier Quality, and Finance on CoPQ savings
+
+Quality Engineer | Aisin USA Mfg., Inc., Seymour IN | Mar 2018 – Dec 2023
+• Managed end-to-end quality for 15+ new model launches using APQP methodology
+• Developed PFMEAs, Control Plans, Inspection Standards, MQC Plans, and SPC studies
+• Led supplier PPAP reviews, SCARs, Tier 2/3 supplier audits and corrective actions
+• Conducted MSA/Gage R&R studies; trained operators on measurement systems
+• Executed 100+ structured problem-solving (8D, 5-Why, Fishbone, DMAIC) investigations
+• Performed CQI special process audits (CQI-9, CQI-11, CQI-12, CQI-15, CQI-23)
+
+KEY ACHIEVEMENTS
+• Reduced exterior defect rates from 10% to 4%, saving $15,000 annually
+• Improved Cpk/Ppk from <1.0 to >1.33 on critical characteristics
+• Eliminated stamping defects: 12% defect reduction, 5% OEE improvement, $8,000 savings
+• Strengthened Poka-Yoke systems: 80% customer issue reduction, $20,000 sorting savings
+• Executed 100+ inline quality investigations (8D/RCA) preventing repeat defects
+
+EDUCATION
+Master of Science, Industrial Engineering — Wayne State University (May 2017)
+Bachelor of Engineering, Mechanical Engineering — VIT University, India (Jun 2014)
+
+CORE COMPETENCIES
+APQP • PPAP • PFMEA • Control Plans • SPC • DOE • MSA • GD&T • 8D • DMAIC • LPA
+CQI Audits • IATF 16949 • ISO 9001 • Supplier Quality Management • EV Battery Quality
+Risk Mitigation • Poka-Yoke • Kaizen • RCCA • MRB/NCM • SCAR
+
+SOFTWARE & TOOLS
+Minitab • Plex • MES • Teamcenter/Enovia • MS Office • Gage Pack • SQL • Tableau • Power BI
+
+MANUFACTURING EXPERTISE
+Injection Molding • Stamping (Transfer & Progressive) • Roll Forming • Extrusion
+Welding (MIG, TIG, RSW) • Machining • General Assembly • EV Battery Components
+Powder Coating • E-Coating • Heat Treat • Interior/Exterior Trim • Poka-Yoke Development
+
+CERTIFICATIONS
+ASQ CPQA • 8D Problem Solving • Six Sigma • MSA • SQL`;
+
+// ── APPLIED JOBS TRACKER ─────────────────────────────────────────────────────
+let appliedJobs = JSON.parse(localStorage.getItem('ravi_applied_jobs') || '[]');
+
+function saveApplied() {
+  try { localStorage.setItem('ravi_applied_jobs', JSON.stringify(appliedJobs)); } catch(_){}
+  document.getElementById('applied-count-badge').textContent = appliedJobs.length;
 }
 
 function markApplied(id) {
   const j = allJobs.find(x => String(x.id) === String(id));
-  showToast('Marked as Applied: ' + j.company + ' — ' + j.title, '#10b981');
+  if (!j) return;
+  const exists = appliedJobs.find(a => a.id === String(id));
+  if (exists) { showToast('Already tracked: ' + j.company, '#f59e0b'); return; }
+  appliedJobs.unshift({
+    id: String(id), title: j.title, company: j.company, location: j.location,
+    market: j.market, salary: j.salaryDisplay, link: j.jobUrl||j.link||'#',
+    score: j.score, appliedDate: new Date().toLocaleDateString(),
+    status: 'Applied', resumeUsed: getBestResume(j), notes: '',
+  });
+  saveApplied();
+  renderTrackerPanel();
+  // Add green badge to card
+  const card = document.getElementById('jcard-' + encodeId(id));
+  if (card && !card.querySelector('.applied-badge')) {
+    const badge = document.createElement('div');
+    badge.className = 'applied-badge'; badge.textContent = '✓ Applied';
+    card.style.position = 'relative'; card.appendChild(badge);
+  }
+  showToast('✓ Tracked: ' + j.company + ' — ' + j.title, '#10b981');
 }
+
+function renderTrackerPanel() {
+  const container = document.getElementById('applied-list-container');
+  if (!container) return;
+  if (!appliedJobs.length) {
+    container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text3)">
+      <div style="font-size:32px;margin-bottom:12px">📋</div>
+      <div style="font-size:14px;margin-bottom:6px">No applications tracked yet</div>
+      <div style="font-size:12px">Click "Mark Applied" on any job card to start tracking</div>
+    </div>`; return;
+  }
+  container.innerHTML = `<div class="applied-list">${appliedJobs.map((a,i) => `
+    <div class="applied-item">
+      <div style="width:42px;height:42px;border-radius:50%;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--sky2);flex-shrink:0">${a.score}</div>
+      <div class="applied-item-info">
+        <div class="applied-item-title">${a.title}</div>
+        <div class="applied-item-meta">${a.company} · ${a.location} · ${a.salary} · Applied ${a.appliedDate}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Resume: ${a.resumeUsed}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select class="status-select" onchange="updateStatus(${i}, this.value)">
+          ${['Applied','Phone Screen','Interview Scheduled','Interview Done','Offer Received','Rejected','On Hold'].map(s=>`<option${a.status===s?' selected':''}>${s}</option>`).join('')}
+        </select>
+        <a class="btn" style="font-size:11px;text-decoration:none" href="${a.link}" target="_blank">View Job →</a>
+        <button class="btn" style="font-size:11px;color:var(--coral)" onclick="removeApplied(${i})">✕</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function updateStatus(idx, status) {
+  appliedJobs[idx].status = status; saveApplied();
+  showToast('Status updated: ' + status, '#10b981');
+}
+
+function removeApplied(idx) {
+  appliedJobs.splice(idx, 1); saveApplied(); renderTrackerPanel();
+}
+
+function exportTrackerCSV() {
+  if (!appliedJobs.length) { showToast('No applications to export', '#f59e0b'); return; }
+  const headers = ['Title','Company','Location','Market','Salary','Score','Status','Applied Date','Resume Used','Job Link'];
+  const rows = appliedJobs.map(a => [
+    a.title,a.company,a.location,a.market,a.salary,a.score,a.status,a.appliedDate,a.resumeUsed,a.link
+  ].map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'RaviTeja_Applications_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('CSV exported!', '#10b981');
+}
+
+// ── AI MODAL ─────────────────────────────────────────────────────────────────
+let currentModalJob = null;
+let generatedResume = '';
+let generatedCover  = '';
+
+function openAIModal(jobId, mode) {
+  const j = allJobs.find(x => String(x.id) === String(jobId));
+  if (!j) return;
+  currentModalJob = j;
+  generatedResume = ''; generatedCover = '';
+
+  // Create modal
+  const overlay = document.createElement('div');
+  overlay.className = 'ai-modal-overlay';
+  overlay.id = 'ai-modal-overlay';
+  overlay.onclick = (e) => { if(e.target===overlay) closeAIModal(); };
+
+  const scoreCol = j.score >= 85 ? '#34d399' : j.score >= 70 ? '#60a5fa' : '#f87171';
+
+  overlay.innerHTML = `
+    <div class="ai-modal">
+      <div class="ai-modal-header">
+        <div>
+          <div class="ai-modal-title">AI Job Assistant</div>
+          <div class="ai-modal-subtitle">Powered by Claude — generating tailored documents for you</div>
+        </div>
+        <button class="btn" onclick="closeAIModal()" style="padding:6px 10px">✕</button>
+      </div>
+
+      <div class="ai-modal-body">
+        <!-- Job info card -->
+        <div class="ai-job-card">
+          <div class="ai-score-chip" style="background:${scoreCol}22;color:${scoreCol};border:2px solid ${scoreCol}44">${j.score}%</div>
+          <div class="ai-job-info">
+            <div class="ai-job-title">${j.title}</div>
+            <div class="ai-job-meta">${j.company} &nbsp;·&nbsp; ${j.location} &nbsp;·&nbsp; <span style="color:var(--gold2)">${j.salaryDisplay||'Salary not listed'}</span></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">Source: ${j.source||'Job Board'} &nbsp;·&nbsp; ${j.market==='USA'?'🇺🇸 USA':'🇮🇳 India'} &nbsp;·&nbsp; ${j.h1b?'H1B ✓':''}</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="ai-tabs">
+          <button class="ai-tab ${mode==='resume'?'active':''}" id="tab-resume" onclick="switchAITab('resume')">📄 Tailored Resume</button>
+          <button class="ai-tab ${mode==='cover'?'active':''}" id="tab-cover" onclick="switchAITab('cover')">✉ Cover Letter</button>
+          <button class="ai-tab" id="tab-tips" onclick="switchAITab('tips')">💡 Interview Tips</button>
+        </div>
+
+        <!-- Resume Tab -->
+        <div class="ai-tab-panel ${mode==='resume'?'active':''}" id="panel-ai-resume">
+          <div id="resume-state-generate">
+            <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+              Claude will read the job description and your resume, then generate a fully tailored, ATS-optimised resume emphasising the exact keywords and skills this role requires.
+            </div>
+            <button class="btn btn-primary" style="font-size:13px;padding:10px 20px" onclick="generateAIResume()">
+              🤖 Generate Tailored Resume (15–20 sec)
+            </button>
+          </div>
+          <div id="resume-state-loading" style="display:none">
+            <div class="ai-generating">
+              <div class="ai-spinner-ring"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="20"/></svg></div>
+              <div class="ai-status-text">Claude is crafting your resume…</div>
+              <ul class="ai-status-steps" id="resume-steps">
+                <li class="ai-status-step" data-i="0"><span class="ai-status-step-dot"></span>Analysing job description keywords</li>
+                <li class="ai-status-step" data-i="1"><span class="ai-status-step-dot"></span>Mapping your experience to requirements</li>
+                <li class="ai-status-step" data-i="2"><span class="ai-status-step-dot"></span>Crafting tailored professional summary</li>
+                <li class="ai-status-step" data-i="3"><span class="ai-status-step-dot"></span>Optimising bullet points for ATS</li>
+                <li class="ai-status-step" data-i="4"><span class="ai-status-step-dot"></span>Finalising formatting and keywords</li>
+              </ul>
+            </div>
+          </div>
+          <div id="resume-state-done" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+              <div style="font-size:12px;color:var(--mint);font-weight:500">✓ Resume generated for ${j.company}</div>
+              <div style="display:flex;gap:8px">
+                <button class="copy-btn" onclick="copyContent('resume')">Copy Text</button>
+                <button class="btn-download" onclick="downloadAsDOCX('resume')">⬇ Download .docx</button>
+              </div>
+            </div>
+            <div class="ai-content-box" id="resume-output"></div>
+          </div>
+        </div>
+
+        <!-- Cover Letter Tab -->
+        <div class="ai-tab-panel ${mode==='cover'?'active':''}" id="panel-ai-cover">
+          <div id="cover-state-generate">
+            <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+              Claude will write a compelling, personalised cover letter for <strong style="color:var(--white)">${j.company}</strong> — referencing the specific role, your Tesla/Yanfeng/Aisin experience, and the exact keywords from their job description.
+            </div>
+            <button class="btn-download" style="border-color:rgba(139,92,246,0.5);color:#a78bfa;background:rgba(139,92,246,0.1);font-size:13px;padding:10px 20px" onclick="generateAICoverLetter()">
+              ✉ Generate Cover Letter (15–20 sec)
+            </button>
+          </div>
+          <div id="cover-state-loading" style="display:none">
+            <div class="ai-generating">
+              <div class="ai-spinner-ring"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="20"/></svg></div>
+              <div class="ai-status-text">Claude is writing your cover letter…</div>
+              <ul class="ai-status-steps" id="cover-steps">
+                <li class="ai-status-step" data-i="0"><span class="ai-status-step-dot"></span>Reading ${j.company} job requirements</li>
+                <li class="ai-status-step" data-i="1"><span class="ai-status-step-dot"></span>Identifying your strongest matching experience</li>
+                <li class="ai-status-step" data-i="2"><span class="ai-status-step-dot"></span>Writing compelling opening paragraph</li>
+                <li class="ai-status-step" data-i="3"><span class="ai-status-step-dot"></span>Crafting achievement-focused body</li>
+                <li class="ai-status-step" data-i="4"><span class="ai-status-step-dot"></span>Polishing tone and closing</li>
+              </ul>
+            </div>
+          </div>
+          <div id="cover-state-done" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+              <div style="font-size:12px;color:var(--mint);font-weight:500">✓ Cover letter ready for ${j.company}</div>
+              <div style="display:flex;gap:8px">
+                <button class="copy-btn" onclick="copyContent('cover')">Copy Text</button>
+                <button class="btn-download" onclick="downloadAsDOCX('cover')">⬇ Download .docx</button>
+              </div>
+            </div>
+            <div class="ai-content-box" id="cover-output"></div>
+          </div>
+        </div>
+
+        <!-- Interview Tips Tab -->
+        <div class="ai-tab-panel" id="panel-ai-tips">
+          <div id="tips-state-generate">
+            <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+              Get role-specific interview tips, likely questions, and STAR story prompts tailored to <strong style="color:var(--white)">${j.company}</strong>'s job requirements.
+            </div>
+            <button class="btn" style="font-size:13px;padding:10px 20px" onclick="generateAITips()">
+              💡 Generate Interview Tips (15 sec)
+            </button>
+          </div>
+          <div id="tips-state-loading" style="display:none">
+            <div class="ai-generating">
+              <div class="ai-spinner-ring"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="20"/></svg></div>
+              <div class="ai-status-text">Preparing your interview guide…</div>
+            </div>
+          </div>
+          <div id="tips-state-done" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div style="font-size:12px;color:var(--mint);font-weight:500">✓ Interview guide ready</div>
+              <button class="copy-btn" onclick="copyContent('tips')">Copy</button>
+            </div>
+            <div class="ai-content-box" id="tips-output"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-modal-footer">
+        <button class="btn" onclick="markApplied('${j.id}');closeAIModal()">✓ Mark as Applied</button>
+        <a class="btn btn-primary" href="${j.jobUrl||j.link||'#'}" target="_blank" style="text-decoration:none">Apply Now →</a>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+function closeAIModal() {
+  const overlay = document.getElementById('ai-modal-overlay');
+  if (overlay) overlay.remove();
+  currentModalJob = null;
+}
+
+function switchAITab(tab) {
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ai-tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab)?.classList.add('active');
+  document.getElementById('panel-ai-' + tab)?.classList.add('active');
+}
+
+// ── STEP ANIMATION ────────────────────────────────────────────────────────────
+function animateSteps(containerId, duration) {
+  const steps = document.querySelectorAll('#' + containerId + ' .ai-status-step');
+  const delay = duration / steps.length;
+  steps.forEach((s,i) => {
+    setTimeout(() => {
+      steps.forEach(x => x.classList.remove('active'));
+      s.classList.add('active');
+      if (i > 0) steps[i-1].classList.add('done');
+    }, i * delay);
+  });
+}
+
+// ── STATE SWITCHER ────────────────────────────────────────────────────────────
+function setState(type, state) {
+  ['generate','loading','done'].forEach(s => {
+    const el = document.getElementById(type+'-state-'+s);
+    if (el) el.style.display = s === state ? 'block' : 'none';
+  });
+}
+
+// ── CLAUDE API CALL ───────────────────────────────────────────────────────────
+async function callClaude(systemPrompt, userPrompt) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    }),
+  });
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error?.message || 'API error ' + response.status);
+  }
+  const data = await response.json();
+  return data.content?.[0]?.text || '';
+}
+
+// ── GENERATE TAILORED RESUME ──────────────────────────────────────────────────
+async function generateAIResume() {
+  if (!currentModalJob) return;
+  const j = currentModalJob;
+  setState('resume', 'loading');
+  animateSteps('resume-steps', 14000);
+
+  const system = `You are an expert ATS-optimised resume writer for automotive quality engineering roles.
+Generate a clean, professional resume for Ravi Teja Chimata tailored to the specific job.
+Format with clear sections. Use plain text formatting (no markdown symbols except dashes for bullets).
+Keep factual — only use information from the base resume provided. Do not invent experience.
+${j.market === 'India' ? 'Header location: Open to Relocation across India (do NOT mention Austin TX)' : 'Header location: Austin, TX | H1B Transfer Ready'}`;
+
+  const user = `BASE RESUME:
+${BASE_RESUME}
+
+TARGET JOB:
+Title: ${j.title}
+Company: ${j.company}
+Location: ${j.location}
+Market: ${j.market}
+Job Description: ${(j.description||j.desc||'').substring(0, 1200)}
+Keywords from job: ${(j.matchedKeywords||[]).join(', ')}
+
+Generate a complete ATS-optimised resume tailored for this specific role. 
+- Lead with a 3-sentence professional summary mentioning ${j.company} and the exact role title
+- Emphasise these matched keywords throughout: ${(j.matchedKeywords||[]).slice(0,8).join(', ')}
+- Keep all achievements with numbers (%, $, quantities)
+- ${j.market === 'USA' ? 'Add "H1B Transfer Ready" to header' : 'Add "Open to Relocation across India" to header, no US city'}`;
+
+  try {
+    const text = await callClaude(system, user);
+    generatedResume = text;
+    document.getElementById('resume-output').textContent = text;
+    setState('resume', 'done');
+    showToast('Resume generated for ' + j.company + '!', '#10b981');
+  } catch(err) {
+    setState('resume', 'generate');
+    showToast('Error: ' + err.message + ' — Check API key in browser console', '#ef4444');
+    console.error('Claude API error:', err);
+  }
+}
+
+// ── GENERATE COVER LETTER ─────────────────────────────────────────────────────
+async function generateAICoverLetter() {
+  if (!currentModalJob) return;
+  const j = currentModalJob;
+  setState('cover', 'loading');
+  animateSteps('cover-steps', 13000);
+
+  const system = `You are an expert cover letter writer for automotive quality engineering professionals.
+Write a compelling, personalised cover letter. Use professional but warm tone.
+Format: Date, hiring manager address placeholder, opening, 3 body paragraphs, closing.
+Length: 350–420 words. Do NOT use generic phrases like "I am writing to express my interest."
+Make it specific to the company and role. Reference real achievements with numbers.
+${j.market === 'India' ? 'Writer location: Open to relocation across India. Mention VIT alumni background.' : 'Writer location: Austin TX. Mention H1B Transfer Ready status.'}`;
+
+  const user = `Write a cover letter for Ravi Teja Chimata applying to:
+Role: ${j.title}
+Company: ${j.company}
+Location: ${j.location}
+Job Description: ${(j.description||j.desc||'').substring(0, 1000)}
+Key requirements to address: ${(j.matchedKeywords||[]).join(', ')}
+
+Ravi's strongest selling points for this role:
+- 8+ years automotive quality engineering (Tesla, Yanfeng, Aisin USA)
+- Tesla EV battery module quality experience (direct EV relevance)
+- 15+ new model launches using APQP methodology
+- Quantified achievements: 80% customer issue reduction, $20K savings, 10%→4% defect reduction
+- ${j.market === 'USA' ? 'H1B Transfer Ready — no cap-subject wait' : 'Open to India relocation, VIT alumnus'}
+
+Write the full cover letter now.`;
+
+  try {
+    const text = await callClaude(system, user);
+    generatedCover = text;
+    document.getElementById('cover-output').textContent = text;
+    setState('cover', 'done');
+    showToast('Cover letter ready for ' + j.company + '!', '#8b5cf6');
+  } catch(err) {
+    setState('cover', 'generate');
+    showToast('Error: ' + err.message, '#ef4444');
+    console.error('Claude API error:', err);
+  }
+}
+
+// ── GENERATE INTERVIEW TIPS ───────────────────────────────────────────────────
+async function generateAITips() {
+  if (!currentModalJob) return;
+  const j = currentModalJob;
+  setState('tips', 'loading');
+
+  const system = `You are an expert interview coach for automotive quality engineering professionals.
+Give specific, actionable interview preparation advice. Use numbered lists and clear sections.
+Focus on STAR stories, technical questions, and role-specific scenarios.`;
+
+  const user = `Give Ravi Teja Chimata interview preparation for:
+Role: ${j.title} at ${j.company}
+Job requirements: ${(j.matchedKeywords||[]).join(', ')}
+Job description: ${(j.description||j.desc||'').substring(0, 600)}
+
+Provide:
+1. Top 5 likely technical questions for this specific role (with brief answer guidance)
+2. 3 STAR story prompts using Ravi's Tesla/Yanfeng/Aisin experience
+3. 3 questions Ravi should ask the interviewer
+4. One key thing to emphasise for this specific company/role`;
+
+  try {
+    const text = await callClaude(system, user);
+    document.getElementById('tips-output').textContent = text;
+    setState('tips', 'done');
+    showToast('Interview guide ready!', '#10b981');
+  } catch(err) {
+    setState('tips', 'generate');
+    showToast('Error: ' + err.message, '#ef4444');
+  }
+}
+
+// ── COPY TO CLIPBOARD ─────────────────────────────────────────────────────────
+async function copyContent(type) {
+  const text = type === 'resume' ? generatedResume : 
+               type === 'cover'  ? generatedCover  :
+               document.getElementById('tips-output')?.textContent || '';
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = event.target;
+    btn.textContent = '✓ Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Text'; btn.classList.remove('copied'); }, 2000);
+  } catch(_) { showToast('Copy failed — select text manually', '#f59e0b'); }
+}
+
+// ── DOWNLOAD AS DOCX (plain text in .doc wrapper) ─────────────────────────────
+function downloadAsDOCX(type) {
+  const text = type === 'resume' ? generatedResume : generatedCover;
+  const j    = currentModalJob;
+  if (!text) { showToast('Generate content first', '#f59e0b'); return; }
+
+  // Create a minimal HTML document that Word can open as .doc
+  const company = (j?.company||'Company').replace(/[^a-zA-Z0-9]/g,'_');
+  const fname   = type === 'resume'
+    ? `RaviTeja_Chimata_Resume_${company}.doc`
+    : `RaviTeja_Chimata_CoverLetter_${company}.doc`;
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:w="urn:schemas-microsoft-com:office:word"
+    xmlns="http://www.w3.org/TR/REC-html40">
+  <head><meta charset="utf-8">
+    <style>
+      body { font-family: Calibri, sans-serif; font-size: 11pt; margin: 1in; color: #222; line-height: 1.4; }
+      h1 { font-size: 18pt; color: #1F3864; margin-bottom: 4pt; }
+      h2 { font-size: 11pt; color: #1F3864; border-bottom: 1pt solid #1F3864; margin-top: 12pt; margin-bottom: 4pt; padding-bottom: 2pt; }
+      p { margin: 4pt 0; }
+    </style>
+  </head>
+  <body>${text.split('\n').map(line => {
+    if (!line.trim()) return '<p>&nbsp;</p>';
+    if (line.match(/^[A-Z][A-Z\s&]+$/) && line.length < 50) return `<h2>${line}</h2>`;
+    if (line.startsWith('RAVI TEJA')) return `<h1>${line}</h1>`;
+    return `<p>${line.replace(/•/g,'&bull;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>`;
+  }).join('')}</body></html>`;
+
+  const blob = new Blob([html], {type:'application/msword'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloaded: ' + fname, '#10b981');
+}
+
+function generateCoverLetter(id) { openAIModal(id, 'cover'); }
 
 // ══════════════════════════════════════════════════════════════
 // PULL SIMULATION
