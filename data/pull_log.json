@@ -1,5 +1,37 @@
 [
   {
+    "timestamp": "2026-09-29T15:29:58.625Z",
+    "newJobs": 0,
+    "totalJobs": 186,
+    "usaJobs": 81,
+    "indiaJobs": 105,
+    "archivedJobs": 0,
+    "searchesRun": 59,
+    "searchErrors": 59,
+    "byCategory": {
+      "Quality Engineer": 155,
+      "Supplier Quality Engineer": 16,
+      "Launch Quality Engineer": 0,
+      "Lead Quality Engineer": 8,
+      "Assistant Manager Quality": 7
+    },
+    "bySource": {
+      "Indeed India": 53,
+      "Naukri.com": 52,
+      "Indeed USA": 59,
+      "LinkedIn": 18,
+      "Glassdoor": 4
+    },
+    "sources": [
+      "Indeed USA",
+      "Indeed India",
+      "LinkedIn",
+      "Glassdoor",
+      "Naukri.com"
+    ],
+    "status": "partial"
+  },
+  {
     "timestamp": "2026-09-28T17:54:12.053Z",
     "newJobs": 185,
     "totalJobs": 186,
@@ -2776,37 +2808,6 @@
   },
   {
     "timestamp": "2026-05-27T12:23:44.459Z",
-    "newJobs": 0,
-    "totalJobs": 350,
-    "usaJobs": 73,
-    "indiaJobs": 277,
-    "archivedJobs": 0,
-    "searchesRun": 59,
-    "searchErrors": 59,
-    "byCategory": {
-      "Quality Engineer": 310,
-      "Supplier Quality Engineer": 13,
-      "Launch Quality Engineer": 0,
-      "Lead Quality Engineer": 13,
-      "Assistant Manager Quality": 14
-    },
-    "bySource": {
-      "Naukri.com": 240,
-      "Indeed USA": 53,
-      "Indeed India": 37,
-      "LinkedIn": 20
-    },
-    "sources": [
-      "Indeed USA",
-      "Indeed India",
-      "LinkedIn",
-      "Glassdoor",
-      "Naukri.com"
-    ],
-    "status": "partial"
-  },
-  {
-    "timestamp": "2026-05-25T12:35:32.746Z",
     "newJobs": 0,
     "totalJobs": 350,
     "usaJobs": 73,
